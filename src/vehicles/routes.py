@@ -1,6 +1,9 @@
 from fastapi import APIRouter
 
+from src.vehicles.service import CarService
+
 vehicles_router = APIRouter()
+car_service = CarService()
 
 
 @vehicles_router.get("/cars")
