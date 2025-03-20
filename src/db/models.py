@@ -1,6 +1,6 @@
 from datetime import datetime
 import uuid
-from sqlmodel import SQLModel, Field
+from sqlmodel import SQLModel, Field 
 
 
 class Cars(SQLModel, table=True):
