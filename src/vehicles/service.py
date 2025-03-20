@@ -37,7 +37,9 @@ class CarService:
         if not car:
             return None
 
-        update_car_dict = car_update_data.model_dump()  # as it is pydantic model
+        # as it is pydantic model and exclude_unset is to remove the none value so that cars remaining
+        # attribute doest set to none
+        update_car_dict = car_update_data.model_dump(exclude_unset=True)
         for key, value in update_car_dict.items():
             setattr(car, key, value)
 

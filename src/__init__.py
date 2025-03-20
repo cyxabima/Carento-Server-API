@@ -15,7 +15,7 @@ async def life_span(app: FastAPI):
     print("Server ends")
 
 
-VERSION = "V1"
+VERSION = "v1"
 app = FastAPI(
     title="WheelXchange",
     version=VERSION,
