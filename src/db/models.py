@@ -1,3 +1,4 @@
+from datetime import datetime
 import uuid
 from sqlmodel import SQLModel, Field
 
@@ -12,3 +13,5 @@ class Cars(SQLModel, table=True):
     fuelType: str
     siting_capacity: int
     price_per_day: float
+    created_at: datetime = Field(nullable=False, default=datetime.now())
+    updated_at: datetime = Field(nullable=False, default=datetime.now())
