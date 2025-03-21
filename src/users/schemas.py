@@ -1,13 +1,30 @@
-from pydantic import BaseModel
-
+from pydantic import BaseModel, EmailStr
+from datetime import datetime
+import uuid
+from typing import Optional
 
 class UserCreateModel(BaseModel):
-    pass
+    first_name: str
+    last_name: str
+    email: EmailStr
+    password: str
+    phone_no: str
 
 
 class UserGetModel(UserCreateModel):
-    pass
+    uid: uuid.UUID
+    created_at: datetime
+    updated_at: datetime
 
 
 class UserLoginModel(BaseModel):
-    pass
+    email: EmailStr
+    password: str
+    phone_no: Optional [str]
+
+class token(BaseModel):
+    access_token: str
+    token_type: str
+
+class tokendata(BaseModel):
+    id : Optional [str] = None
