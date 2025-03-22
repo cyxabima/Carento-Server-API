@@ -1,7 +1,9 @@
 from datetime import datetime
+from typing import Optional
 import uuid
 from sqlmodel import SQLModel, Field
 from pydantic import EmailStr
+
 
 class Cars(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -16,12 +18,25 @@ class Cars(SQLModel, table=True):
     created_at: datetime = Field(nullable=False, default=datetime.now())
     updated_at: datetime = Field(nullable=False, default=datetime.now())
 
-class Users(SQLModel, table=True):
+
+class BaseUser(SQLModel):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    first_name: str
-    last_name: str
-    email: EmailStr
+    email: EmailStr = Field(unique=True)
     password: str
     phone_no: str
+
+
+class Customers(BaseUser, table=True):
+    first_name: str
+    last_name: str
+    created_at: datetime = Field(nullable=False, default=datetime.now())
+    updated_at: datetime = Field(nullable=False, default=datetime.now())
+
+
+class Vendors(BaseUser, table=True):
+    first_name: Optional[str] = None  # For individuals
+    last_name: Optional[str] = None  # For individuals
+    business_name: Optional[str] = None  # For businesses
+    is_business: bool
     created_at: datetime = Field(nullable=False, default=datetime.now())
     updated_at: datetime = Field(nullable=False, default=datetime.now())
