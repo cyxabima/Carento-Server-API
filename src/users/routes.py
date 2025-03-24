@@ -37,14 +37,15 @@ async def customer_login(
     email: str, password: str, session: AsyncSession = Depends(get_async_session)
 ):
 
-    customer = await customer_service.login(email, password, session)
+    customer_token = await customer_service.login(email, password, session)
 
-    if not customer:
+    if not customer_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials.",
         )
-    return {"message": "Login successful"}
+
+    return {"message": "Login successful", "Access Token": customer_token}
 
 
 @customer_router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
@@ -88,14 +89,14 @@ async def vendor_login(
     email: str, password: str, session: AsyncSession = Depends(get_async_session)
 ):
 
-    vendor = await vendor_service.login(email, password, session)
+    vendor_token = await vendor_service.login(email, password, session)
 
-    if not vendor:
+    if not vendor_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials.",
         )
-    return {"message": "Login successful"}
+    return {"message": "Login successful", "Access Token": vendor_token}
 
 
 @vendor_router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)

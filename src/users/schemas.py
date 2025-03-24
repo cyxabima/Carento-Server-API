@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 import uuid
-from typing import Optional
+from typing import Literal, Optional
 
 
 class UserCreateModel(BaseModel):
@@ -50,5 +50,7 @@ class token(BaseModel):
     token_type: str
 
 
-class token_data(BaseModel):
-    id: Optional[str] = None
+class TokenDataModel(BaseModel):
+    # uid: uuid.UUID
+    email: EmailStr
+    role: Literal["Customer", "Vendor", "Admin"]

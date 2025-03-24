@@ -1,9 +1,11 @@
 from abc import ABC, abstractmethod
 from typing import Generic, Optional, Sequence, Type, TypeVar
+# import uuid
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 
 from src import utils
+from src.auth.oauth2 import AuthService
 from . import schemas
 
 from src.db.models import BaseUser, Customers, Vendors
@@ -15,12 +17,12 @@ T = TypeVar("T", bound=BaseUser)
 
 #  this is generic class in cpp we called it template
 class UserService(ABC, Generic[T]):
+    auth_service = AuthService()
 
     # get all users method
     async def get_all_users(
         self, db_model: Type[T], session: AsyncSession
     ) -> Sequence[T]:
-        pass
         statement = select(db_model)
         users = await session.exec(statement)
         return users.all()
@@ -42,7 +44,7 @@ class UserService(ABC, Generic[T]):
     @abstractmethod
     async def login(
         self, email: str, password: str, session: AsyncSession
-    ) -> Optional[T]:
+    ) -> Optional[str]:
         pass
 
     @abstractmethod
@@ -95,8 +97,10 @@ class CustomerService(UserService[Customers]):
         verify_pass = utils.verify_password(password, customer.password)
         if not verify_pass:
             return
+        token_data = schemas.TokenDataModel(email=email, role="Customer")
+        token = self.auth_service.create_access_token(data=token_data.model_dump())
 
-        return customer
+        return token
 
     # delete customer account
     async def delete_account(
@@ -165,7 +169,10 @@ class VendorService(UserService[Vendors]):
         if not verify_pass:
             return
 
-        return vendor
+        token_data = schemas.TokenDataModel(email=email, role="Vendor")
+        token = self.auth_service.create_access_token(data=token_data.model_dump())
+
+        return token
 
     # delete vendor account
     async def delete_account(
