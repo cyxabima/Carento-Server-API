@@ -16,12 +16,17 @@ class UserLoginModel(BaseModel):
     phone_no: Optional[str] = None
 
 
+class UserDeleteModel(BaseModel):
+    email: EmailStr
+    password: str
+
+
 class CustomerCreateModel(UserCreateModel):
     first_name: str
     last_name: str
 
 
-class CustomerGetModel(CustomerCreateModel):
+class CustomerResponseModel(CustomerCreateModel):
     uid: uuid.UUID
     created_at: datetime
     updated_at: datetime
@@ -34,7 +39,7 @@ class VendorCreateModel(UserCreateModel):
     is_business: bool
 
 
-class VendorGetModel(VendorCreateModel):
+class VendorResponseModel(VendorCreateModel):
     uid: uuid.UUID
     created_at: datetime
     updated_at: datetime

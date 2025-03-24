@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from typing import Generic, Optional, Type, TypeVar
+from typing import Generic, Optional, Sequence, Type, TypeVar
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
 
@@ -8,46 +8,75 @@ from . import schemas
 
 from src.db.models import BaseUser, Customers, Vendors
 
+# Type[T] represent class type and T represent object type
 # Define a type variable for subclasses of BaseUser
 T = TypeVar("T", bound=BaseUser)
 
 
 #  this is generic class in cpp we called it template
 class UserService(ABC, Generic[T]):
+
+    # get all users method
+    async def get_all_users(
+        self, db_model: Type[T], session: AsyncSession
+    ) -> Sequence[T]:
+        pass
+        statement = select(db_model)
+        users = await session.exec(statement)
+        return users.all()
+
+    # get user by email method
     async def get_user_by_email(
         self, email: str, db_model: Type[T], session: AsyncSession
-    ):
+    ) -> Optional[T]:
         statement = select(db_model).where(db_model.email == email)
         result = await session.exec(statement)
         user = result.first()
         return user
 
+    # abstract methods for sign up login and delete account
     @abstractmethod
     async def sign_up(self, user_data, session: AsyncSession) -> Optional[T]:
         pass
 
     @abstractmethod
-    async def login(self, email: str, password: str, session: AsyncSession):
+    async def login(
+        self, email: str, password: str, session: AsyncSession
+    ) -> Optional[T]:
         pass
 
+    @abstractmethod
+    async def delete_account(
+        self, user_data: schemas.UserDeleteModel, session: AsyncSession
+    ) -> Optional[int]:
+        pass
+
+    #  Incomplete method for logout
     async def log_out(self):
-        pass
-
-    async def get_all_users(self):
         pass
 
 
 class CustomerService(UserService[Customers]):
+    #  get all customer
+    async def get_all_customers(self, session: AsyncSession):
+        all_customers = await self.get_all_users(Customers, session)
+        return all_customers
 
+    # get customer by email
+    async def get_customer_by_email(self, email, session: AsyncSession):
+        customer = await self.get_user_by_email(email, Customers, session)
+        return customer
+
+    # signup for customer
     async def sign_up(
         self,
         user_data: schemas.CustomerCreateModel,
         session: AsyncSession,
     ):
 
-        customer = await self.get_user_by_email(user_data.email, Customers, session)
+        customer = await self.get_customer_by_email(user_data.email, session)
         if customer:
-            return None
+            return
 
         hashed_password = utils.hash_password(user_data.password)
         user_data.password = hashed_password
@@ -57,26 +86,65 @@ class CustomerService(UserService[Customers]):
         await session.refresh(new_customer)
         return new_customer
 
+    # login for customer
     async def login(self, email: str, password: str, session: AsyncSession):
         customer = await self.get_user_by_email(email, Customers, session)
         if not customer:
-            return None
+            return
 
         verify_pass = utils.verify_password(password, customer.password)
         if not verify_pass:
-            return None
+            return
+
+        return customer
+
+    # delete customer account
+    async def delete_account(
+        self, user_data: schemas.UserDeleteModel, session: AsyncSession
+    ):
+        customer = await self.get_customer_by_email(user_data.email, session)
+        if not customer:
+            return
+
+        if not utils.verify_password(user_data.password, customer.password):
+            return
+
+        await session.delete(customer)
+        await session.commit()
+        return 200
 
 
 class VendorService(UserService[Vendors]):
+
+    #  get all vendors
+    async def get_all_vendors(self, session: AsyncSession):
+        all_vendors = await self.get_all_users(Vendors, session)
+        return all_vendors
+
+    # get vendor by email
+    async def get_vendor_by_email(self, email, session: AsyncSession):
+        vendor = await self.get_user_by_email(email, Vendors, session)
+        return vendor
+
+    # signup for vendor
     async def sign_up(
         self,
         user_data: schemas.VendorCreateModel,
         session: AsyncSession,
     ):
 
-        customer = await self.get_user_by_email(user_data.email, Vendors, session)
-        if customer:
-            return None
+        vendor = await self.get_vendor_by_email(user_data.email, session)
+        if vendor:
+            return
+
+        if user_data.business_name:
+            statement = select(Vendors).where(
+                Vendors.business_name == user_data.business_name
+            )
+            find_business = await session.exec(statement)
+            business = find_business.first()
+            if business:
+                return
 
         hashed_password = utils.hash_password(user_data.password)
         user_data.password = hashed_password
@@ -86,12 +154,30 @@ class VendorService(UserService[Vendors]):
         await session.refresh(new_vendor)
         return new_vendor
 
+    # login for vendor
     async def login(self, email: str, password: str, session: AsyncSession):
-        vendor = await self.get_user_by_email(email, Vendors, session)
+        vendor = await self.get_vendor_by_email(email, session)
         if not vendor:
-            return None
+            return
 
         verify_pass = utils.verify_password(password, vendor.password)
 
         if not verify_pass:
-            return None
+            return
+
+        return vendor
+
+    # delete vendor account
+    async def delete_account(
+        self, user_data: schemas.UserDeleteModel, session: AsyncSession
+    ):
+        vendor = await self.get_vendor_by_email(user_data.email, session)
+        if not vendor:
+            return
+
+        if not utils.verify_password(user_data.password, vendor.password):
+            return
+
+        await session.delete(vendor)
+        await session.commit()
+        return 200
