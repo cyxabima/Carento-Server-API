@@ -8,7 +8,8 @@ class ReviewService:
                             review: schemas.ReviewCreateModel,
                             session: AsyncSession):
         """
-        Creates a new review for a vendor (via a car).
+        Creates a new review for a car by customer
+        A customer can only review car once.
         """
         # Check if customer exists
         result = await session.execute(select(models.Customers).where(
@@ -50,8 +51,11 @@ class ReviewService:
 
     async def edit_review(self,
                             review_uid: str,
-                            edited_review,
+                            edited_review: schemas.ReviewUpdateModel,
                             session: AsyncSession):
+        """
+        Edit the current review of customer if he has any
+        """
     # Check if review exists
         result = await session.execute(
             select(models.Reviews).where(models.Reviews.uid == review_uid)
@@ -59,7 +63,7 @@ class ReviewService:
         existing_review = result.scalars().first()
         
         if not existing_review:
-            return None  # raise an HTTPException
+            return None  # will raise an HTTPException
 
         # Update fields that were set in edited_review
         update_review_dict = edited_review.model_dump(exclude_unset=True)
@@ -70,3 +74,21 @@ class ReviewService:
         await session.refresh(existing_review)
 
         return existing_review
+    
+    async def delete_review(self,
+                             review_uid: str,
+                             session: AsyncSession):
+        """
+        Delete the current review of customer
+        """
+        # Check if review exists
+        result = await session.execute(
+            select(models.Reviews).where(models.Reviews.uid == review_uid)
+        )
+        existing_review = result.scalars().first()
+        
+        if not existing_review:
+            return None  # will raise an HTTPException
+        await session.delete(existing_review)
+        await session.commit()
+        return {"message": "review deleted successfully"}
