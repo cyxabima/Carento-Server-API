@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Generic, Optional, Sequence, Type, TypeVar
+
 # import uuid
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlmodel import select
@@ -44,7 +45,7 @@ class UserService(ABC, Generic[T]):
     @abstractmethod
     async def login(
         self, email: str, password: str, session: AsyncSession
-    ) -> Optional[str]:
+    ) -> Optional[schemas.Token]:
         pass
 
     @abstractmethod
@@ -100,7 +101,7 @@ class CustomerService(UserService[Customers]):
         token_data = schemas.TokenDataModel(email=email, role="Customer")
         token = self.auth_service.create_access_token(data=token_data.model_dump())
 
-        return token
+        return schemas.Token(access_token=token)
 
     # delete customer account
     async def delete_account(
@@ -172,7 +173,7 @@ class VendorService(UserService[Vendors]):
         token_data = schemas.TokenDataModel(email=email, role="Vendor")
         token = self.auth_service.create_access_token(data=token_data.model_dump())
 
-        return token
+        return schemas.Token(access_token=token)
 
     # delete vendor account
     async def delete_account(

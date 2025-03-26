@@ -45,9 +45,9 @@ class VendorResponseModel(VendorCreateModel):
     updated_at: datetime
 
 
-class token(BaseModel):
+class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
 
 
 class TokenDataModel(BaseModel):

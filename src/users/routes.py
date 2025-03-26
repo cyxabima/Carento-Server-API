@@ -1,5 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
+from src.auth.Dependencies import customer_dependency, vendor_dependency
 
 from src.db.main import get_async_session
 from .service import CustomerService, VendorService
@@ -34,10 +36,13 @@ async def customer_signup(
 
 @customer_router.post("/login", status_code=status.HTTP_202_ACCEPTED)
 async def customer_login(
-    email: str, password: str, session: AsyncSession = Depends(get_async_session)
+    customer_credentials: OAuth2PasswordRequestForm = Depends(),
+    session: AsyncSession = Depends(get_async_session),
 ):
 
-    customer_token = await customer_service.login(email, password, session)
+    customer_token = await customer_service.login(
+        customer_credentials.username, customer_credentials.password, session
+    )
 
     if not customer_token:
         raise HTTPException(
@@ -45,10 +50,14 @@ async def customer_login(
             detail="Invalid credentials.",
         )
 
-    return {"message": "Login successful", "Access Token": customer_token}
+    return customer_token
 
 
-@customer_router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
+@customer_router.delete(
+    "/delete",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[customer_dependency],
+)
 async def customer_delete_account(
     user_data: schemas.UserDeleteModel,
     session: AsyncSession = Depends(get_async_session),
@@ -86,20 +95,25 @@ async def vendor_signup(
 
 @vendor_router.post("/login", status_code=status.HTTP_202_ACCEPTED)
 async def vendor_login(
-    email: str, password: str, session: AsyncSession = Depends(get_async_session)
+    vendor_credentials: OAuth2PasswordRequestForm = Depends(),
+    session: AsyncSession = Depends(get_async_session),
 ):
 
-    vendor_token = await vendor_service.login(email, password, session)
+    vendor_token = await vendor_service.login(
+        vendor_credentials.username, vendor_credentials.password, session
+    )  # remember username is email in our system
 
     if not vendor_token:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid credentials.",
         )
-    return {"message": "Login successful", "Access Token": vendor_token}
+    return vendor_token
 
 
-@vendor_router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
+@vendor_router.delete(
+    "/delete", status_code=status.HTTP_204_NO_CONTENT, dependencies=[vendor_dependency]
+)
 async def vendor_delete_account(
     user_data: schemas.UserDeleteModel,
     session: AsyncSession = Depends(get_async_session),

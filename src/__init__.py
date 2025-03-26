@@ -1,5 +1,6 @@
 from fastapi import Depends, FastAPI
 from sqlmodel.ext.asyncio.session import AsyncSession
+from src.auth.Dependencies import get_logged_user
 from src.config import Config
 from src.db.main import get_async_session, init_db
 from src.users.routes import customer_router, vendor_router
@@ -35,15 +36,16 @@ async def root(session: AsyncSession = Depends(get_async_session)):
     }
 
 
+@app.get("/me")
+async def me(user=Depends(get_logged_user)):
+    return user
+
+
 app.include_router(
     vehicles_router, prefix=f"/api/{VERSION}/vehicles", tags=["Vehicles"]
 )
 app.include_router(
     customer_router, prefix=f"/api/{VERSION}/customers", tags=["Customers"]
 )
-app.include_router(
-    vendor_router, prefix=f"/api/{VERSION}/vendors", tags=["Vendors"]
-)
-app.include_router(
-    review_router, prefix=f"/api/{VERSION}/reviews", tags=["Reviews"]    
-)
+app.include_router(vendor_router, prefix=f"/api/{VERSION}/vendors", tags=["Vendors"])
+app.include_router(review_router, prefix=f"/api/{VERSION}/reviews", tags=["Reviews"])
