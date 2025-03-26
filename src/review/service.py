@@ -1,10 +1,13 @@
-from . import schemas, models
+from . import schemas
 from sqlmodel.ext.asyncio.session import AsyncSession
 from sqlalchemy.future import select
+from src.db import models
+import uuid
 
 class ReviewService:
 
     async def create_review(self, 
+                            car_uid: uuid.UUID,
                             review: schemas.ReviewCreateModel,
                             session: AsyncSession):
         """
@@ -16,29 +19,29 @@ class ReviewService:
                                         models.Customers.uid == review.customer_id))
         customer = result.scalars().first()
         if not customer:
+            
             return
 
         # Check if car exists and get its vendor
         result = await session.execute(select(models.Cars).where(
-                                         models.Cars.uid == review.car_id))
+                                         models.Cars.uid == car_uid))
         car = result.scalars().first()
         if not car:
+            print('hello')
             return 
         
         # check if already reviewed
         result = await session.execute(select(models.Reviews).where(
                                         models.Reviews.customer_id == review.customer_id,
-                                        models.Reviews.car_id == review.car_id))
+                                        models.Reviews.car_id == car_uid))
         is_reviewed = result.scalars().first()
         if is_reviewed:
             return 
-                                        
-
-        vendor_id = car.vendor_id  # ✅ Get vendor from car
+                                         
 
         # Create a new review instance((
         review_data= review.model_dump()
-        review_data["vendor_id"] = vendor_id  # ✅ Add vendor_id dynamically
+        review_data["car_id"] = car_uid  
         new_review = models.Reviews(**review_data)
             
 

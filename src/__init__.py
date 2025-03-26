@@ -4,6 +4,7 @@ from src.config import Config
 from src.db.main import get_async_session, init_db
 from src.users.routes import customer_router, vendor_router
 from src.vehicles.routes import vehicles_router
+from src.review.routes import review_router
 from contextlib import asynccontextmanager
 
 
@@ -42,4 +43,7 @@ app.include_router(
 )
 app.include_router(
     vendor_router, prefix=f"/api/{VERSION}/vendors", tags=["Vendors"]
+)
+app.include_router(
+    review_router, prefix=f"/api/{VERSION}/reviews", tags=["Reviews"]    
 )

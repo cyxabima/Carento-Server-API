@@ -4,7 +4,7 @@ import uuid
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr
 
-
+# ---------------------- CARS MODEL ----------------------
 class Cars(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str
@@ -15,52 +15,55 @@ class Cars(SQLModel, table=True):
     fuelType: str
     siting_capacity: int
     price_per_day: float
-    created_at: datetime = Field(nullable=False, default=datetime.now())
-    updated_at: datetime = Field(nullable=False, default=datetime.now())
-    reviews: List["Reviews"] = Relationship(back_populates="Cars")
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+
+    # Relationship with Reviews
+    reviews: List["Reviews"] = Relationship(back_populates="car", sa_relationship_kwargs={"lazy": "selectin"})
 
 
+# ---------------------- BASE USER MODEL ----------------------
 class BaseUser(SQLModel):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    email: EmailStr = Field(unique=True)
+    email: EmailStr
     password: str
     phone_no: str
 
 
+# ---------------------- CUSTOMERS MODEL ----------------------
 class Customers(BaseUser, table=True):
     first_name: str
     last_name: str
-    created_at: datetime = Field(nullable=False, default=datetime.now())
-    updated_at: datetime = Field(nullable=False, default=datetime.now())
-    reviews: List["Reviews"] = Relationship(back_populates="Customers")
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+
+    # Relationship with Reviews
+    reviews: List["Reviews"] = Relationship(back_populates="customer", sa_relationship_kwargs={"lazy": "selectin"})
 
 
+# ---------------------- VENDORS MODEL ----------------------
 class Vendors(BaseUser, table=True):
     first_name: Optional[str] = None  # For individuals
     last_name: Optional[str] = None  # For individuals
     business_name: Optional[str] = None  # For businesses
     is_business: bool
-    created_at: datetime = Field(nullable=False, default=datetime.now())
-    updated_at: datetime = Field(nullable=False, default=datetime.now())
-    reviews: List["Reviews"] = Relationship(back_populates="Vendors")
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
 
+
+# ---------------------- REVIEWS MODEL ----------------------
 class Reviews(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    customer_id: int = Field(foreign_key="Customer.uid")
-    car_id: int = Field(foreign_key="Cars.uid")
-    rating: int = Field(..., ge=1, le=5)  # Rating between 1 and 5 and ... means this rating can't be empty
+    customer_id: uuid.UUID = Field(foreign_key="customers.uid")
+    car_id: uuid.UUID = Field(foreign_key="cars.uid")
+    
+    rating: int = Field(..., ge=1, le=5)  # Rating between 1 and 5
     review_text: Optional[str] = None
-    created_at: datetime = Field(nullable=False, default_factory=datetime.utcnow)
-    updated_at: datetime = Field(nullable=False, default_factory=datetime.utcnow)
+    created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
-
-    # RELATONSHIPS
-customer: "Customers" = Relationship(back_populates="Reviews")
-vendor: "Vendors" = Relationship(back_populates="Reviews")
-car: Optional["Cars"] = Relationship(back_populates="Reviews")
-
-# it is optional for a customer to give reviews about car he will just give reviews about 
-# vendor if he likes the car he will give its review in the same section or if he wants
-# explicitly he could do that also
+    # Relationships
+    customer: "Customers" = Relationship(back_populates="reviews", sa_relationship_kwargs={"lazy": "selectin"})
+    car: "Cars" = Relationship(back_populates="reviews", sa_relationship_kwargs={"lazy": "selectin"})
     
