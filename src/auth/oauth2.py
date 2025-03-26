@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List, Optional
 import uuid
 import jwt
 from datetime import timedelta, datetime, timezone
@@ -8,6 +8,7 @@ from src.config import Config
 from fastapi.security.oauth2 import OAuth2PasswordBearer
 from fastapi import Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
+from src.db.main import get_async_session
 from src.db.models import Customers, Vendors
 
 oauth_scheme = OAuth2PasswordBearer(tokenUrl="token")
@@ -28,9 +29,11 @@ class AuthService:
         self, data: dict, expires_delta: Optional[timedelta] = None
     ) -> str:
         to_encode = data.copy()
+
         expire = datetime.now(timezone.utc) + (
             expires_delta or timedelta(days=self.expiry_time)
         )
+
         to_encode.update({"jti": str(uuid.uuid4())})
         to_encode.update({"exp": expire})
 
@@ -48,7 +51,7 @@ class AuthService:
 
     @staticmethod
     async def get_logged_user(
-        session: AsyncSession,
+        session: AsyncSession = Depends(get_async_session),
         token_data: dict = Depends(get_token_data),
     ):
         email = token_data.get("email")
@@ -71,6 +74,23 @@ class AuthService:
             )
 
         return user
+
+    async def role_checker(
+        self, allowed_role: List[str], token_data=Depends(get_token_data)
+    ):
+        role = token_data.get("role")
+        if not role:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid Access token"
+            )
+
+        if role not in allowed_role:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail=f"{role} Role is not allowed to access this resource",
+            )
+
+        return None
 
     def send_verification_email(self):
         # TODO: Implement email verification logic
