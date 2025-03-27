@@ -4,6 +4,7 @@ import uuid
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr
 
+
 # ---------------------- CARS MODEL ----------------------
 class Cars(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -19,7 +20,9 @@ class Cars(SQLModel, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     # Relationship with Reviews
-    reviews: List["Reviews"] = Relationship(back_populates="car", sa_relationship_kwargs={"lazy": "selectin"})
+    reviews: List["Reviews"] = Relationship(
+        back_populates="car", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 # ---------------------- BASE USER MODEL ----------------------
@@ -38,7 +41,9 @@ class Customers(BaseUser, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     # Relationship with Reviews
-    reviews: List["Reviews"] = Relationship(back_populates="customer", sa_relationship_kwargs={"lazy": "selectin"})
+    reviews: List["Reviews"] = Relationship(
+        back_populates="customer", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 # ---------------------- VENDORS MODEL ----------------------
@@ -51,19 +56,21 @@ class Vendors(BaseUser, table=True):
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
 
-
 # ---------------------- REVIEWS MODEL ----------------------
 class Reviews(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     customer_id: uuid.UUID = Field(foreign_key="customers.uid")
     car_id: uuid.UUID = Field(foreign_key="cars.uid")
-    
+
     rating: int = Field(..., ge=1, le=5)  # Rating between 1 and 5
     review_text: Optional[str] = None
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
 
     # Relationships
-    customer: "Customers" = Relationship(back_populates="reviews", sa_relationship_kwargs={"lazy": "selectin"})
-    car: "Cars" = Relationship(back_populates="reviews", sa_relationship_kwargs={"lazy": "selectin"})
-    
+    customer: "Customers" = Relationship(
+        back_populates="reviews", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+    car: "Cars" = Relationship(
+        back_populates="reviews", sa_relationship_kwargs={"lazy": "selectin"}
+    )

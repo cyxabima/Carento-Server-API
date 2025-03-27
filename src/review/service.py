@@ -1,49 +1,56 @@
+from sqlmodel import select
 from . import schemas
 from sqlmodel.ext.asyncio.session import AsyncSession
-from sqlalchemy.future import select
-from src.db import models
+
+from src.db.models import Customers, Cars, Reviews
 import uuid
+
 
 class ReviewService:
 
-    async def create_review(self, 
-                            car_uid: uuid.UUID,
-                            review: schemas.ReviewCreateModel,
-                            session: AsyncSession):
+    async def create_review(
+        self,
+        car_uid: uuid.UUID,
+        review: schemas.ReviewCreateModel,
+        session: AsyncSession,
+    ):
         """
         Creates a new review for a car by customer
         A customer can only review car once.
         """
+
         # Check if customer exists
-        result = await session.execute(select(models.Customers).where(
-                                        models.Customers.uid == review.customer_id))
-        customer = result.scalars().first()
+        customer_statement = select(Customers).where(
+            Customers.uid == review.customer_id
+        )
+        result = await session.exec(customer_statement)
+        customer = result.first()
         if not customer:
-            
             return
 
         # Check if car exists and get its vendor
-        result = await session.execute(select(models.Cars).where(
-                                         models.Cars.uid == car_uid))
-        car = result.scalars().first()
+        car_statement = select(Cars).where(Cars.uid == car_uid)
+        result = await session.exec(car_statement)
+        car = result.first()
         if not car:
-            print('hello')
-            return 
-        
+            print("hello")
+            return
+
         # check if already reviewed
-        result = await session.execute(select(models.Reviews).where(
-                                        models.Reviews.customer_id == review.customer_id,
-                                        models.Reviews.car_id == car_uid))
-        is_reviewed = result.scalars().first()
+        review_exist_statement = select(Reviews).where(
+            Reviews.customer_id == review.customer_id,
+            Reviews.car_id == car_uid,
+        )
+        result = await session.exec(review_exist_statement)
+        is_reviewed = result.first()
+
         if is_reviewed:
-            return 
-                                         
+            return
 
         # Create a new review instance((
-        review_data= review.model_dump()
-        review_data["car_id"] = car_uid  
-        new_review = models.Reviews(**review_data)
-            
+        review_data = review.model_dump()
+        review_data["car_id"] = car_uid
+        new_review = Reviews(**review_data)
 
         # Add to session and commit
         session.add(new_review)
@@ -52,19 +59,20 @@ class ReviewService:
 
         return new_review
 
-    async def edit_review(self,
-                            review_uid: str,
-                            edited_review: schemas.ReviewUpdateModel,
-                            session: AsyncSession):
+    async def edit_review(
+        self,
+        review_uid: str,
+        edited_review: schemas.ReviewUpdateModel,
+        session: AsyncSession,
+    ):
         """
         Edit the current review of customer if he has any
         """
-    # Check if review exists
-        result = await session.execute(
-            select(models.Reviews).where(models.Reviews.uid == review_uid)
-        )
-        existing_review = result.scalars().first()
-        
+        # Check if review exists
+        get_review_statement = select(Reviews).where(Reviews.uid == review_uid)
+        result = await session.exec(get_review_statement)
+        existing_review = result.first()
+
         if not existing_review:
             return None  # will raise an HTTPException
 
@@ -77,21 +85,19 @@ class ReviewService:
         await session.refresh(existing_review)
 
         return existing_review
-    
-    async def delete_review(self,
-                             review_uid: str,
-                             session: AsyncSession):
+
+    async def delete_review(self, review_uid: str, session: AsyncSession):
         """
         Delete the current review of customer
         """
         # Check if review exists
-        result = await session.execute(
-            select(models.Reviews).where(models.Reviews.uid == review_uid)
-        )
-        existing_review = result.scalars().first()
-        
+        statement = select(Reviews).where(Reviews.uid == review_uid)
+        result = await session.exec(statement)
+        existing_review = result.first()
+
         if not existing_review:
             return None  # will raise an HTTPException
+
         await session.delete(existing_review)
         await session.commit()
         return {"message": "review deleted successfully"}
