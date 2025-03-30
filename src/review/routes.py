@@ -11,24 +11,6 @@ from src.db.models import BaseUser
 review_router = APIRouter()
 review_service = ReviewService()
 
-<<<<<<< HEAD
-
-async def get_review_by_id(
-    review_uid: uuid.UUID, customer_id: uuid.UUID, session: AsyncSession
-) -> Optional[Reviews]:
-    """
-    Fetches a review by its ID and ensures that the given customer is the author.
-    """
-    statement = select(Reviews).where(
-        Reviews.uid == review_uid,
-        Reviews.customer_id
-        == customer_id,  # Ensures only the author(customer) can fetch
-    )
-    result = await session.exec(statement)
-    return result.first()
-=======
->>>>>>> test
-
 
 @review_router.post(
     "/create/{car_uid}",
@@ -67,10 +49,7 @@ async def post_review(
     "/update_review/{review_uid}",
     response_model=ReviewResponseModel,
     status_code=status.HTTP_200_OK,
-<<<<<<< HEAD
-=======
     dependencies=[review_dependency],
->>>>>>> test
 )
 async def edit_review(
     review_uid: uuid.UUID,
@@ -86,11 +65,6 @@ async def edit_review(
         current_user.uid, review_uid, updated_review, session
     )
 
-<<<<<<< HEAD
-    review = await get_review_by_id(review_uid, current_user.uid, session)
-
-=======
->>>>>>> test
     if not review:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -101,13 +75,9 @@ async def edit_review(
 
 
 @review_router.delete(
-<<<<<<< HEAD
-    "/delete_review/{review_uid}", status_code=status.HTTP_204_NO_CONTENT
-=======
     "/delete_review/{review_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[review_dependency],
->>>>>>> test
 )
 async def delete_review(
     review_uid: uuid.UUID,
@@ -118,11 +88,7 @@ async def delete_review(
     Allows a customer to delete their own review.
     """
 
-<<<<<<< HEAD
-    review = await get_review_by_id(review_uid, current_user.uid, session)
-=======
     review = await review_service.delete_review(review_uid, current_user.uid, session)
->>>>>>> test
 
     if not review:
         raise HTTPException(
