@@ -1,3 +1,4 @@
+from typing import Optional
 from sqlmodel import select
 from . import schemas
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -12,6 +13,21 @@ car_service = CarService()
 
 
 class ReviewService:
+
+    async def get_review_by_id(
+        self, review_uid: uuid.UUID, customer_id: uuid.UUID, session: AsyncSession
+    ) -> Optional[Reviews]:
+        """
+        Fetches a review by its ID and ensures that the given customer is the author.
+        """
+
+        statement = select(Reviews).where(
+            Reviews.uid == review_uid,
+            Reviews.customer_id
+            == customer_id,  # Ensures only the author(customer) can fetch
+        )
+        result = await session.exec(statement)
+        return result.first()
 
     async def has_reviewed(
         self, customer_id: uuid.UUID, car_id: uuid.UUID, session: AsyncSession
@@ -72,37 +88,43 @@ class ReviewService:
 
     async def edit_review(
         self,
-        review_uid: str,
-        edited_review: schemas.ReviewUpdateModel,
+        current_user: uuid.UUID,
+        review_uid: uuid.UUID,
+        updated_review: schemas.ReviewUpdateModel,
         session: AsyncSession,
     ):
         """
         Edit the current review of customer if he has any
         """
         # Check if review exists
-        reviewed = await self.has_reviewed(current_user.uid, car_uid, session)
-        if not reviewed:
+        review = await self.get_review_by_id(review_uid, current_user, session)
+
+        if not review:
             return
 
-        # Update fields that were set in edited_review
-        update_review_dict = edited_review.model_dump(exclude_unset=True)
-        for key, value in update_review_dict.items():
-            setattr(reviewed, key, value)
+        # Update allowed fields
+        if updated_review.rating is not None:
+            review.rating = updated_review.rating
 
+        review.review_text = updated_review.review_text
+
+        # Save changes
         await session.commit()
-        await session.refresh(reviewed)
+        await session.refresh(review)
 
-        return reviewed
+        return review
 
-    async def delete_review(self, review_uid: str, session: AsyncSession):
+    async def delete_review(
+        self, review_uid: uuid.UUID, current_user: uuid.UUID, session: AsyncSession
+    ):
         """
         Delete the current review of customer
         """
         # Check if review exists
-        reviewed = await self.has_reviewed(current_user.uid, car_uid, session)
+        reviewed = await self.get_review_by_id(review_uid, current_user, session)
         if not reviewed:
             return  # will raise an HTTPException
 
-        await session.delete(existing_review)
+        await session.delete(reviewed)
         await session.commit()
         return {"message": "review deleted successfully"}

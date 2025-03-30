@@ -1,18 +1,17 @@
-from typing import Optional
-from sqlmodel import select
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status, Response
 from sqlmodel.ext.asyncio.session import AsyncSession
-from .schemas import ReviewCreateModel, ReviewResponseModel
+from .schemas import ReviewCreateModel, ReviewResponseModel, ReviewUpdateModel
 from src.db.main import get_async_session
 from .service import ReviewService
 from src.auth.Dependencies import review_dependency, get_logged_user
-from src.db.models import BaseUser, Reviews
+from src.db.models import BaseUser
 
 
 review_router = APIRouter()
 review_service = ReviewService()
 
+<<<<<<< HEAD
 
 async def get_review_by_id(
     review_uid: uuid.UUID, customer_id: uuid.UUID, session: AsyncSession
@@ -27,6 +26,8 @@ async def get_review_by_id(
     )
     result = await session.exec(statement)
     return result.first()
+=======
+>>>>>>> test
 
 
 @review_router.post(
@@ -66,39 +67,47 @@ async def post_review(
     "/update_review/{review_uid}",
     response_model=ReviewResponseModel,
     status_code=status.HTTP_200_OK,
+<<<<<<< HEAD
+=======
+    dependencies=[review_dependency],
+>>>>>>> test
 )
 async def edit_review(
     review_uid: uuid.UUID,
-    updated_review: ReviewCreateModel,
+    updated_review: ReviewUpdateModel,
     session: AsyncSession = Depends(get_async_session),
     current_user: BaseUser = Depends(get_logged_user),
 ):
     """
     Allows a customer to update their existing review.
-    Only review text and rating can be updated.
+    Both review text and rating can be updated.
     """
+    review = await review_service.edit_review(
+        current_user.uid, review_uid, updated_review, session
+    )
 
+<<<<<<< HEAD
     review = await get_review_by_id(review_uid, current_user.uid, session)
 
+=======
+>>>>>>> test
     if not review:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found or you are not authorized to update it.",
         )
 
-    # Update allowed fields
-    review.rating = updated_review.rating
-    review.review_text = updated_review.review_text
-
-    # Save changes
-    await session.commit()
-    await session.refresh(review)
-
     return review
 
 
 @review_router.delete(
+<<<<<<< HEAD
     "/delete_review/{review_uid}", status_code=status.HTTP_204_NO_CONTENT
+=======
+    "/delete_review/{review_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    dependencies=[review_dependency],
+>>>>>>> test
 )
 async def delete_review(
     review_uid: uuid.UUID,
@@ -109,19 +118,20 @@ async def delete_review(
     Allows a customer to delete their own review.
     """
 
+<<<<<<< HEAD
     review = await get_review_by_id(review_uid, current_user.uid, session)
+=======
+    review = await review_service.delete_review(review_uid, current_user.uid, session)
+>>>>>>> test
 
     if not review:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found or you are not authorized to delete it.",
         )
-
-    # Delete review
-    await session.delete(review)
-    await session.commit()
-
-    return Response(status_code=status.HTTP_204_NO_CONTENT)
+    return Response(
+        content="deleted successfully", status_code=status.HTTP_204_NO_CONTENT
+    )
 
 
 # /* up till here the main functionality has been done additional functionality
