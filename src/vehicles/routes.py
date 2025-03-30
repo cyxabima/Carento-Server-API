@@ -1,4 +1,5 @@
 from typing import List
+import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
@@ -28,7 +29,7 @@ async def get_all_cars(
     "/cars/{car_uid}", response_model=CarGetModel, dependencies=[customer_dependency]
 )
 async def get_car(
-    car_uid: str,
+    car_uid: uuid.UUID,
     db: AsyncSession = Depends(get_async_session),
 ):
     car = await car_service.get_car(car_uid, db)
@@ -63,7 +64,7 @@ async def create_car(
     "/cars/{car_uid}", response_model=CarGetModel, dependencies=[vendor_dependency]
 )
 async def edit_car(
-    car_uid: str,
+    car_uid: uuid.UUID,
     car_update_data: CarUpdateModel,
     db: AsyncSession = Depends(get_async_session),
 ):
@@ -81,7 +82,7 @@ async def edit_car(
     status_code=status.HTTP_204_NO_CONTENT,
     dependencies=[vendor_dependency],
 )
-async def delete_car(car_uid: str, db: AsyncSession = Depends(get_async_session)):
+async def delete_car(car_uid: uuid.UUID, db: AsyncSession = Depends(get_async_session)):
     car = await car_service.delete_car(car_uid, db)
 
     if not car:

@@ -1,4 +1,5 @@
 from typing import Optional, Sequence
+import uuid
 from sqlmodel import desc, select
 from . import schemas
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -12,7 +13,9 @@ class CarService:
         cars = result.all()
         return cars
 
-    async def get_car(self, car_uid: str, session: AsyncSession) -> Optional[Cars]:
+    async def get_car(
+        self, car_uid: uuid.UUID, session: AsyncSession
+    ) -> Optional[Cars]:
         statement = select(Cars).where(Cars.uid == car_uid)
         result = await session.exec(statement)
         car = result.first()  # this will either return None or Car Object
@@ -29,7 +32,7 @@ class CarService:
         return new_car
 
     async def edit_car(
-        self, car_uid: str, car_update_data, session: AsyncSession
+        self, car_uid: uuid.UUID, car_update_data, session: AsyncSession
     ) -> Optional[Cars]:
 
         car = await self.get_car(car_uid, session)
@@ -48,7 +51,9 @@ class CarService:
 
         return car
 
-    async def delete_car(self, car_uid: str, session: AsyncSession) -> Optional[dict]:
+    async def delete_car(
+        self, car_uid: uuid.UUID, session: AsyncSession
+    ) -> Optional[dict]:
         car = await self.get_car(car_uid, session)
         if not car:
             return None
