@@ -7,6 +7,7 @@ from src.users.routes import customer_router, vendor_router
 from src.vehicles.routes import vehicles_router
 from src.review.routes import review_router
 from contextlib import asynccontextmanager
+from src.booking_table.routes import booking_router
 
 
 @asynccontextmanager
@@ -47,5 +48,12 @@ app.include_router(
 app.include_router(
     customer_router, prefix=f"/api/{VERSION}/customers", tags=["Customers"]
 )
-app.include_router(vendor_router, prefix=f"/api/{VERSION}/vendors", tags=["Vendors"])
-app.include_router(review_router, prefix=f"/api/{VERSION}/reviews", tags=["Reviews"])
+app.include_router(
+    vendor_router, prefix=f"/api/{VERSION}/vendors", tags=["Vendors"]
+)
+app.include_router(
+    review_router, prefix=f"/api/{VERSION}/reviews", tags=["Reviews"]
+)
+app.include_router(
+    booking_router, prefix=f"/api/{VERSION}/booking", tags=["Booking"]
+)
