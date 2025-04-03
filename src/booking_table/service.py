@@ -72,7 +72,7 @@ class BookingService:
         
         result = await session.exec(select(Cars).where(Cars.uid == car_uid))
         car = result.first()
-        car.is_booked = True  # Mark car as booked
+        car.is_booked = booking.is_payment_confirmed  # Mark car as booked
         
         await session.commit() 
         await session.refresh(new_booking)
