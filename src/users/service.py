@@ -67,7 +67,7 @@ class CustomerService(UserService[Customers]):
 
     # get customer by email
     async def get_customer_by_email(self, email, session: AsyncSession):
-        customer = await self.get_user_by_email(email, Customers, session)        
+        customer = await self.get_user_by_email(email, Customers, session)
         return customer
 
     # signup for customer

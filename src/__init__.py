@@ -48,12 +48,6 @@ app.include_router(
 app.include_router(
     customer_router, prefix=f"/api/{VERSION}/customers", tags=["Customers"]
 )
-app.include_router(
-    vendor_router, prefix=f"/api/{VERSION}/vendors", tags=["Vendors"]
-)
-app.include_router(
-    review_router, prefix=f"/api/{VERSION}/reviews", tags=["Reviews"]
-)
-app.include_router(
-    booking_router, prefix=f"/api/{VERSION}/booking", tags=["Booking"]
-)
+app.include_router(vendor_router, prefix=f"/api/{VERSION}/vendors", tags=["Vendors"])
+app.include_router(review_router, prefix=f"/api/{VERSION}/reviews", tags=["Reviews"])
+app.include_router(booking_router, prefix=f"/api/{VERSION}/booking", tags=["Booking"])

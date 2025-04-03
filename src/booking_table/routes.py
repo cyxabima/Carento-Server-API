@@ -1,6 +1,10 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from .schemas import CreateBookingModel, BookingResponseModel
-from src.auth.Dependencies import customer_dependency, vendor_dependency, get_logged_user
+from src.auth.Dependencies import (
+    customer_dependency,
+    vendor_dependency,
+    get_logged_user,
+)
 import uuid
 from src.db.main import get_async_session
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -9,6 +13,7 @@ from .service import BookingService
 
 booking_router = APIRouter()
 booking_service = BookingService()
+
 
 @booking_router.post(
     "/create/{car_uid}",
@@ -20,7 +25,9 @@ async def create_booking(
     car_uid: uuid.UUID,
     booking_data: CreateBookingModel,
     session: AsyncSession = Depends(get_async_session),
-    current_user: BaseUser = Depends(get_logged_user),  # Automatically get logged-in user
+    current_user: BaseUser = Depends(
+        get_logged_user
+    ),  # Automatically get logged-in user
 ):
     """
     API Endpoint to allow a customer to book a car.
@@ -28,7 +35,10 @@ async def create_booking(
     """
 
     booking = await booking_service.create_booking(
-        car_uid, booking_data, session, current_user,
+        car_uid,
+        booking_data,
+        session,
+        current_user,
     )
 
     if booking is None:
@@ -36,7 +46,7 @@ async def create_booking(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Car is already booked or invalid request.",
         )
-    
+
     return booking
 
 
@@ -48,23 +58,23 @@ async def create_booking(
 async def delete_booking(
     booking_uid: uuid.UUID,
     session: AsyncSession = Depends(get_async_session),
-    current_user: BaseUser = Depends(get_logged_user),  # Automatically get logged-in user
+    current_user: BaseUser = Depends(
+        get_logged_user
+    ),  # Automatically get logged-in user
 ):
     """
     API Endpoint to allow a customer to delete their booking.
     A customer can only delete a booking they created.
     """
 
-    booking = await booking_service.delete_booking(
-        booking_uid, session
-    )
+    booking = await booking_service.delete_booking(booking_uid, session)
 
     if not booking:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Booking not found or you cannot delete someone else's booking.",
         )
-    
+
     return booking
 
 
@@ -76,7 +86,9 @@ async def delete_booking(
 )
 async def get_all_bookings(
     session: AsyncSession = Depends(get_async_session),
-    current_user: BaseUser = Depends(get_logged_user),  # Automatically get logged-in user
+    current_user: BaseUser = Depends(
+        get_logged_user
+    ),  # Automatically get logged-in user
 ):
     """
     API Endpoint to get all bookings for a vendor.

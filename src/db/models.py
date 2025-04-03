@@ -5,6 +5,7 @@ from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr
 from src.booking_table.schemas import BookingStatus
 
+
 # ---------------------- CARS MODEL ----------------------
 class Cars(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
@@ -81,7 +82,7 @@ class Reviews(SQLModel, table=True):
 class Booking(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     customer_id: uuid.UUID = Field(foreign_key="customers.uid")
-    car_id: uuid.UUID = Field(foreign_key="cars.uid")   
+    car_id: uuid.UUID = Field(foreign_key="cars.uid")
     start_date: datetime
     end_date: datetime
     total_price: float

@@ -14,7 +14,7 @@ class CarCreateModel(BaseModel):
     fuelType: str
     siting_capacity: int
 
-    
+
 class CarGetModel(CarCreateModel):
     uid: uuid.UUID
     created_at: datetime
