@@ -3,7 +3,7 @@ from typing import Optional, List
 import uuid
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr
-from src.booking_table.schemas import BookingStatus
+# from src.booking_table.schemas import BookingStatus
 
 
 # ---------------------- CARS MODEL ----------------------
