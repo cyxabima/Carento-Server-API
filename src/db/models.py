@@ -87,3 +87,9 @@ class Booking(SQLModel, table=True):
     end_date: datetime
     total_price: float
     is_payment_confirmed: bool = Field(default=False)
+
+
+# ---------------------- ADMIN TABLE ----------------------
+
+class Admin(SQLModel, table=True):
+    pass
