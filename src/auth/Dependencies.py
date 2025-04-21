@@ -39,7 +39,8 @@ async def get_logged_user(
     statement = select(Customers).where(Customers.email == email)
     if role == "Vendor":
         statement = select(Vendors).where(Vendors.email == email)
-
+    else:
+        pass
     response = await session.exec(statement)
     user = response.first()
 
@@ -77,3 +78,4 @@ def role_checker(allowed_role: List[str]):
 customer_dependency = Depends(role_checker(["Admin", "Customer"]))
 vendor_dependency = Depends(role_checker(["Admin", "Vendor"]))
 review_dependency = Depends(role_checker(["Customer"]))
+admin_dependency = Depends(role_checker(["Admin"]))

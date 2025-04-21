@@ -92,4 +92,7 @@ class Booking(SQLModel, table=True):
 # ---------------------- ADMIN TABLE ----------------------
 
 class Admin(SQLModel, table=True):
-    pass
+    uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    name: str
+    email: EmailStr
+    message: str
