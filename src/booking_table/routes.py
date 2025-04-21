@@ -1,5 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Depends
-from .schemas import CreateBookingModel, BookingResponseModel
+from src.booking_table.schemas import CreateBookingModel, BookingResponseModel
 from src.auth.Dependencies import (
     customer_dependency,
     vendor_dependency,
@@ -9,7 +9,7 @@ import uuid
 from src.db.main import get_async_session
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.models import BaseUser
-from .service import BookingService
+from src.booking_table.service import BookingService
 
 booking_router = APIRouter()
 booking_service = BookingService()

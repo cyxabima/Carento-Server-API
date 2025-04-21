@@ -2,6 +2,8 @@ from pydantic_settings import BaseSettings
 
 
 class Settings(BaseSettings):
+    ADMIN_NAME: str
+    ADMIN_PANEL_PASSWORD: str
     DB_URI: str
     SECRET_KEY: str
     ALGORITHM: str
