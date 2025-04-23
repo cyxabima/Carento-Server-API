@@ -9,8 +9,8 @@ from src.review.routes import review_router
 from contextlib import asynccontextmanager
 from src.booking_table.routes import booking_router
 from fastapi.middleware.cors import CORSMiddleware
-from src.admin_panel.routes import admin_router
-from fastapi.middleware.cors import CORSMiddleware
+
+# from src.admin_panel.routes import admin_router
 
 
 @asynccontextmanager
