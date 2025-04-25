@@ -7,18 +7,16 @@ from src.auth.Dependencies import (
 import uuid
 from src.db.main import get_async_session
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.db.models import BaseUser
 from src.booking_table.service import BookingService
 from src.config import Config
-from src.review.service import ReviewService
 from src.admin_panel.service import AdminService
-from src.admin_panel.schemas import AdminGetModel
 
 admin_router = APIRouter()
 booking_service = BookingService()
 admin_service = AdminService()
 
 admin_password = Config.ADMIN_PANEL_PASSWORD
+
 
 @admin_router.post(
     "/login/{password}",
@@ -28,7 +26,7 @@ admin_password = Config.ADMIN_PANEL_PASSWORD
 )
 async def login_admin(
     password: str,
-    session: AsyncSession = Depends(get_async_session),     
+    session: AsyncSession = Depends(get_async_session),
 ):
 
     admin = await admin_service.login_admin(password, session)
@@ -38,6 +36,7 @@ async def login_admin(
             detail="Invalid admin password",
         )
     return admin
+
 
 @admin_router.delete(
     "/delete-booking/{booking_uid}",
@@ -89,7 +88,7 @@ async def get_all_bookings(
     return bookings
 
 
-@review_router.delete(
+@admin_router.delete(
     "/delete_review/{review_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
     # dependencies=[admin_dependency],
@@ -97,7 +96,6 @@ async def get_all_bookings(
 async def delete_review(
     review_uid: uuid.UUID,
     session: AsyncSession = Depends(get_async_session),
-    
 ):
     """
     Allows admin to delete any review.
@@ -110,6 +108,7 @@ async def delete_review(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Review not found.",
         )
-    return Response(
-        content="deleted successfully", status_code=status.HTTP_204_NO_CONTENT
-    )
+    return {
+        "content": "deleted successfully",
+        "status_code": status.HTTP_204_NO_CONTENT,
+    }

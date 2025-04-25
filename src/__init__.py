@@ -8,7 +8,9 @@ from src.vehicles.routes import vehicles_router
 from src.review.routes import review_router
 from contextlib import asynccontextmanager
 from src.booking_table.routes import booking_router
-from src.admin_panel.routes import admin_router
+from fastapi.middleware.cors import CORSMiddleware
+
+# from src.admin_panel.routes import admin_router
 
 
 @asynccontextmanager
@@ -25,6 +27,14 @@ app = FastAPI(
     version=VERSION,
     description="A Rest API for Vehicle Rental system or Market Place",
     lifespan=life_span,
+)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -52,4 +62,4 @@ app.include_router(
 app.include_router(vendor_router, prefix=f"/api/{VERSION}/vendors", tags=["Vendors"])
 app.include_router(review_router, prefix=f"/api/{VERSION}/reviews", tags=["Reviews"])
 app.include_router(booking_router, prefix=f"/api/{VERSION}/booking", tags=["Booking"])
-app.include_router(admin_router, prefix=f"/api/{VERSION}/admin", tags=["Admin"])
+# app.include_router(admin_router, prefix=f"/api/{VERSION}/admin", tags=["Admin"])

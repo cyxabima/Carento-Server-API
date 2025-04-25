@@ -3,20 +3,23 @@ from typing import Optional, List
 import uuid
 from sqlmodel import SQLModel, Field, Relationship
 from pydantic import EmailStr
+
 # from src.booking_table.schemas import BookingStatus
 
 
 # ---------------------- CARS MODEL ----------------------
 class Cars(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    name: str
-    model: str
+    car_name: str
+    model_year: str
     brand: str
-    category: str
-    engine: str
-    fuelType: str
+    car_category: str
+    engine_size: str
+    fuel_type: str
     siting_capacity: int
     price_per_day: float
+    registration_no: str
+    transmission: str
     is_booked: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
@@ -90,6 +93,7 @@ class Booking(SQLModel, table=True):
 
 
 # ---------------------- ADMIN TABLE ----------------------
+
 
 class Admin(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)

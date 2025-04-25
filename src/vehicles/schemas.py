@@ -1,18 +1,20 @@
 from datetime import datetime
-from typing import Optional
+from typing import Literal, Optional
 import uuid
 from pydantic import BaseModel
 
 
 class CarCreateModel(BaseModel):
-    name: str
-    model: str
+    car_name: str
+    model_year: str
     brand: str
-    category: str
-    price_per_day: float
-    engine: str
-    fuelType: str
+    car_category: str
+    engine_size: str
+    fuel_type: str
     siting_capacity: int
+    price_per_day: float
+    registration_no: str
+    transmission: Literal["Manual", "Automatic"]
 
 
 class CarGetModel(CarCreateModel):
