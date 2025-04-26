@@ -118,7 +118,7 @@ class ReviewService:
         self, review_uid: uuid.UUID, current_user: uuid.UUID, session: AsyncSession
     ):
         """
-        Delete the current review of customer
+        Delete the review of current customer
         """
         # Check if review exists
         reviewed = await self.get_review_by_id(review_uid, current_user, session)

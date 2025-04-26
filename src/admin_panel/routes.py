@@ -10,10 +10,12 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.booking_table.service import BookingService
 from src.config import Config
 from src.admin_panel.service import AdminService
+from src.review.service import ReviewService
 
 admin_router = APIRouter()
 booking_service = BookingService()
 admin_service = AdminService()
+review_service = ReviewService()
 
 admin_password = Config.ADMIN_PANEL_PASSWORD
 
@@ -101,7 +103,7 @@ async def delete_review(
     Allows admin to delete any review.
     """
 
-    review = await review_service.delete_review(review_uid, current_user.uid, session)
+    review = await admin_service.delete_review(review_uid, session)
 
     if not review:
         raise HTTPException(
