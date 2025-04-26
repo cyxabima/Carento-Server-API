@@ -92,11 +92,20 @@ class Booking(SQLModel, table=True):
     is_payment_confirmed: bool = Field(default=False)
 
 
-# ---------------------- ADMIN TABLE ----------------------
+# ---------------------- CONTACT US TABLE ----------------------
 
 
-class Admin(SQLModel, table=True):
+class Contact(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str
     email: EmailStr
     message: str
+
+
+# ---------------------- ADMINS TABLE ----------------------
+
+
+class Company(SQLModel, table=True):
+    uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    name: str
+    password: str

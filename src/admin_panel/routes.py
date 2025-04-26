@@ -1,4 +1,5 @@
 from fastapi import APIRouter, status, HTTPException, Depends
+from typing import List
 from src.booking_table.schemas import BookingResponseModel
 from src.auth.Dependencies import (
     admin_dependency,
@@ -10,12 +11,16 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.booking_table.service import BookingService
 from src.config import Config
 from src.admin_panel.service import AdminService
-from src.review.service import ReviewService
+from src.vehicles.service import CarService
+from src.vehicles.schemas import CarGetModel
+from src.users import schemas
+
 
 admin_router = APIRouter()
 booking_service = BookingService()
 admin_service = AdminService()
-review_service = ReviewService()
+car_service = CarService()
+customer_service = schemas.CustomerService()
 
 admin_password = Config.ADMIN_PANEL_PASSWORD
 
@@ -114,3 +119,86 @@ async def delete_review(
         "content": "deleted successfully",
         "status_code": status.HTTP_204_NO_CONTENT,
     }
+
+
+@admin_router.get("/cars", response_model=List[CarGetModel])
+async def get_all_cars(
+    db: AsyncSession = Depends(get_async_session),
+):
+    cars = await admin_service.get_all_cars(db)
+    return cars
+
+
+@admin_router.get("/cars/{car_uid}", response_model=CarGetModel)
+async def get_car(
+    car_uid: uuid.UUID,
+    db: AsyncSession = Depends(get_async_session),
+):
+    car = await car_service.get_car(car_uid, db)
+    if not car:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"message": "car with this uid is not found"},
+        )
+    return car
+
+
+@admin_router.delete(
+    "/cars/{car_uid}",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_car(car_uid: uuid.UUID, db: AsyncSession = Depends(get_async_session)):
+    car = await car_service.delete_car(car_uid, db)
+
+    if not car:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"message": "car with this uid is not found"},
+        )
+
+    return
+
+
+@admin_router.get(
+    "/customers",
+    response_model=List[schemas.CustomerGetModel],
+)
+async def get_all_customers(db: AsyncSession):
+
+    customers = await admin_service.get_all_customers(db)
+    return cars
+
+
+@admin_router.delete(
+    "/customers",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_customers(
+    user_data: schemas.UserDeleteModel,
+    session: AsyncSession = Depends(get_async_session),
+):
+
+    result = await customer_service.delete_account(user_data, session)
+
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid credentials or customer not found.",
+        )
+    return {"message": "Account deleted successfully"}
+
+
+@admin_router.get(
+    "/customers",
+    response_model=List[schemas.VendorGetModel],
+)
+async def get_all_vendors():
+    pass
+
+
+@admin_router.get(
+    "/customers",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def get_all_customers():
+    pass

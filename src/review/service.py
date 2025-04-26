@@ -15,16 +15,14 @@ car_service = CarService()
 class ReviewService:
 
     async def get_review_by_id(
-        self, review_uid: uuid.UUID, customer_id: uuid.UUID, session: AsyncSession
+        self, review_uid: uuid.UUID, session: AsyncSession
     ) -> Optional[Reviews]:
         """
-        Fetches a review by its ID and ensures that the given customer is the author.
+        Fetches a review by its I.
         """
 
         statement = select(Reviews).where(
             Reviews.uid == review_uid,
-            Reviews.customer_id
-            == customer_id,  # Ensures only the author(customer) can fetch
         )
         result = await session.exec(statement)
         return result.first()
@@ -114,14 +112,12 @@ class ReviewService:
 
         return review
 
-    async def delete_review(
-        self, review_uid: uuid.UUID, current_user: uuid.UUID, session: AsyncSession
-    ):
+    async def delete_review(self, review_uid: uuid.UUID, session: AsyncSession):
         """
-        Delete the review of current customer
+        Delete the review of any customer.
         """
         # Check if review exists
-        reviewed = await self.get_review_by_id(review_uid, current_user, session)
+        reviewed = await self.get_review_by_id(review_uid, session)
         if not reviewed:
             return  # will raise an HTTPException
 

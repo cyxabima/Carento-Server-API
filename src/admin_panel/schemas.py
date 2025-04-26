@@ -6,6 +6,7 @@ class ContactGetModel(BaseModel):
     email: EmailStr
     message: str
 
+
 class AdminGetModel(BaseModel):
     name: str
     password: str

@@ -6,6 +6,7 @@ from src.db.main import get_async_session
 from .service import ReviewService
 from src.auth.Dependencies import review_dependency, get_logged_user
 from src.db.models import BaseUser
+from src.db.models import Reviews
 
 
 review_router = APIRouter()
@@ -88,17 +89,23 @@ async def delete_review(
     Allows a customer to delete their own review.
     """
 
-    review = await review_service.delete_review(review_uid, current_user.uid, session)
+    review = await review_service.get_review_by_uid(review_uid, session)
 
     if not review:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Review not found or you are not authorized to delete it.",
+            detail="Review not found.",
         )
-    return Response(
-        content="deleted successfully", status_code=status.HTTP_204_NO_CONTENT
-    )
 
+    if current_user.uid != review.customer_id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You cannot delete someone else's review.",
+        )
 
-# /* up till here the main functionality has been done additional functionality
-# just like all reviews for specific vendor and all the reviews of specific customer*/
+    await review_service.delete_review(review_uid, session)
+
+    return {
+        "content": "Deleted successfully",
+        "status_code": status.HTTP_204_NO_CONTENT,
+    }
