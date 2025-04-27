@@ -5,7 +5,7 @@ import uuid
 
 
 # class BookingStatus(str, Enum):  # for now it is of no work
-#     PENDING = "pending"  # but some functionality can be
+#     PENDING = "pending"  # but some ality can be
 #     CONFIRMED = "confirmed"  # added which will use this
 #     CANCELED = "canceled"
 

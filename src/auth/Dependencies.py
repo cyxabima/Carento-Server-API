@@ -53,7 +53,7 @@ async def get_logged_user(
     return user
 
 
-# why use a higher order function because dependency takes only reference of function
+# why use a higher order  because dependency takes only reference of
 def role_checker(allowed_role: List[str]):
     def _role_dependency(token=Depends(oauth_scheme), _=Depends(get_logged_user)):
         token_data = auth_service.verify_access_token(token, credentials_exception)

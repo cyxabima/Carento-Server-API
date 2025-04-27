@@ -95,7 +95,7 @@ class BookingService:
             car.is_booked = False
             await session.commit()
 
-        # in this logic it might be difficult to use get_car function because
+        # in this logic it might be difficult to use get_car  because
         # delete_booking takes only one argument so we have two options
         # either we take car_uid here or we have to take that as a url in end point
         # so it is better to define logic explicitly imo

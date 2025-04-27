@@ -1,6 +1,6 @@
 from fastapi import APIRouter, status, HTTPException, Depends
 from typing import List
-from src.booking_table.schemas import BookingResponseModel
+
 from src.auth.Dependencies import (
     admin_dependency,
     get_logged_user,
@@ -12,24 +12,34 @@ from src.booking_table.service import BookingService
 from src.config import Config
 from src.admin_panel.service import AdminService
 from src.vehicles.service import CarService
-from src.vehicles.schemas import CarGetModel
-from src.users import schemas
-
+from src.users.service import CustomerService, VendorService
+from src.admin_panel.schemas import (
+    AdminGetModel,
+    AdminCarGetModel,
+    BookingGetModel,
+    CustomerGetModel,
+    VendorGetModel,
+    UserDeleteModel,
+)
+from pydantic import EmailStr
 
 admin_router = APIRouter()
+
 booking_service = BookingService()
 admin_service = AdminService()
 car_service = CarService()
-customer_service = schemas.CustomerService()
+customer_service = CustomerService()
+vendor_service = VendorService()
 
 admin_password = Config.ADMIN_PANEL_PASSWORD
 
 
+# ---------------------- ADMIN LOGIN ----------------------
 @admin_router.post(
     "/login/{password}",
     status_code=status.HTTP_202_ACCEPTED,
     # dependencies=[admin_dependency],
-    # response_model=AdminGetModel,
+    response_model=AdminGetModel,
 )
 async def login_admin(
     password: str,
@@ -45,6 +55,7 @@ async def login_admin(
     return admin
 
 
+# ---------------------- BOOKING ROUTES ----------------------
 @admin_router.delete(
     "/delete-booking/{booking_uid}",
     status_code=status.HTTP_202_ACCEPTED,
@@ -72,7 +83,7 @@ async def delete_booking(
 
 @admin_router.get(
     "/get_all",
-    response_model=list[BookingResponseModel],  # List of bookings as response model
+    response_model=list[BookingGetModel],  # List of bookings as response model
     status_code=status.HTTP_200_OK,
     # dependencies=[admin_dependency],
 )
@@ -95,6 +106,7 @@ async def get_all_bookings(
     return bookings
 
 
+# ---------------------- REVIEW ROUTES ----------------------
 @admin_router.delete(
     "/delete_review/{review_uid}",
     status_code=status.HTTP_204_NO_CONTENT,
@@ -121,7 +133,11 @@ async def delete_review(
     }
 
 
-@admin_router.get("/cars", response_model=List[CarGetModel])
+# ---------------------- VEHICLE ROUTES ----------------------
+@admin_router.get(
+    "/cars",
+    response_model=List[AdminCarGetModel]
+)
 async def get_all_cars(
     db: AsyncSession = Depends(get_async_session),
 ):
@@ -129,7 +145,7 @@ async def get_all_cars(
     return cars
 
 
-@admin_router.get("/cars/{car_uid}", response_model=CarGetModel)
+@admin_router.get("/cars/{car_uid}", response_model=AdminCarGetModel)
 async def get_car(
     car_uid: uuid.UUID,
     db: AsyncSession = Depends(get_async_session),
@@ -156,17 +172,28 @@ async def delete_car(car_uid: uuid.UUID, db: AsyncSession = Depends(get_async_se
             detail={"message": "car with this uid is not found"},
         )
 
-    return
+    return car
+
+
+# ---------------------- CUSTOMERS ROUTES ----------------------
+@admin_router.get(
+    "/customers",
+    response_model=List[CustomerGetModel],
+)
+async def get_all_customers(session: AsyncSession = Depends(get_async_session)):
+
+    customers = await admin_service.get_all_customers(session)
+    return customers
 
 
 @admin_router.get(
-    "/customers",
-    response_model=List[schemas.CustomerGetModel],
+    "/customer",
+    response_model=CustomerGetModel,
 )
-async def get_all_customers(db: AsyncSession):
+async def get_customer_by_email(email: EmailStr, session: AsyncSession = Depends(get_async_session)):
 
-    customers = await admin_service.get_all_customers(db)
-    return cars
+    customer = await customer_service.get_customer_by_email(email, session)
+    return customer
 
 
 @admin_router.delete(
@@ -174,31 +201,54 @@ async def get_all_customers(db: AsyncSession):
     status_code=status.HTTP_204_NO_CONTENT,
 )
 async def delete_customers(
-    user_data: schemas.UserDeleteModel,
+    user_email: EmailStr,
     session: AsyncSession = Depends(get_async_session),
 ):
 
-    result = await customer_service.delete_account(user_data, session)
+    result = await admin_service.delete_account(user_email, session)
 
     if not result:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Invalid credentials or customer not found.",
+            detail="Invalid email or person not found.",
         )
     return {"message": "Account deleted successfully"}
 
 
+# ---------------------- VENDOR FUNTIONS ----------------------
 @admin_router.get(
-    "/customers",
-    response_model=List[schemas.VendorGetModel],
+    "/vendors",
+    response_model=List[VendorGetModel],
 )
-async def get_all_vendors():
-    pass
+async def get_all_vendors(session: AsyncSession = Depends(get_async_session)):
+    vendors = await admin_service.get_all_vendors(session)
+    return vendors
 
 
 @admin_router.get(
-    "/customers",
+    "/vendor",
+    response_model=VendorGetModel,
+)
+async def get_vendor_by_email(email: EmailStr, session: AsyncSession = Depends(get_async_session)):
+
+    vendor = await vendor_service.get_vendor_by_email(email, session)
+    return vendor
+
+
+@admin_router.delete(
+    "/vendors",
     status_code=status.HTTP_204_NO_CONTENT,
 )
-async def get_all_customers():
-    pass
+async def delete_customers(
+    user_email: EmailStr,
+    session: AsyncSession = Depends(get_async_session),
+):
+
+    result = await admin_service.delete_account(user_email, session)
+
+    if not result:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid email or person not found.",
+        )
+    return {"message": "Account deleted successfully"}
