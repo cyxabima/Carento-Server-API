@@ -11,6 +11,7 @@ from pydantic import EmailStr
 class Cars(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     car_name: str
+    image_url: str
     model_year: str
     brand: str
     car_category: str
