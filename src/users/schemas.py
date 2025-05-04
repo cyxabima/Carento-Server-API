@@ -1,7 +1,9 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 import uuid
-from typing import Literal, Optional
+from typing import List, Literal, Optional
+
+from src.db.models import Cars
 
 
 class UserCreateModel(BaseModel):
@@ -41,6 +43,7 @@ class VendorCreateModel(UserCreateModel):
 
 class VendorResponseModel(VendorCreateModel):
     uid: uuid.UUID
+    cars: List[Cars]
     created_at: datetime
     updated_at: datetime
 

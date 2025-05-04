@@ -24,10 +24,16 @@ class Cars(SQLModel, table=True):
     is_booked: bool = Field(default=False)
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+    vendor_id: uuid.UUID = Field(foreign_key="vendors.uid")
 
     # Relationship with Reviews
     reviews: List["Reviews"] = Relationship(
         back_populates="car", sa_relationship_kwargs={"lazy": "selectin"}
+    )
+
+    # Relationship with Vendors
+    vendor: "Vendors" = Relationship(
+        back_populates="cars", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
 
@@ -60,6 +66,11 @@ class Vendors(BaseUser, table=True):
     is_business: bool
     created_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
     updated_at: datetime = Field(default_factory=datetime.utcnow, nullable=False)
+
+    # Relationship with cars
+    cars: List["Cars"] = Relationship(
+        back_populates="vendor", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 # ---------------------- REVIEWS MODEL ----------------------

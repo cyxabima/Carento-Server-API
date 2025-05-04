@@ -1,9 +1,14 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.auth.Dependencies import customer_dependency, vendor_dependency
+from src.auth.Dependencies import (
+    customer_dependency,
+    get_logged_user,
+    vendor_dependency,
+)
 
 from src.db.main import get_async_session
+from src.db.models import BaseUser
 from .service import CustomerService, VendorService
 from . import schemas
 
@@ -127,3 +132,19 @@ async def vendor_delete_account(
             detail="Invalid credentials or vendor not found.",
         )
     # return {"message": "Account deleted successfully"}
+
+
+@vendor_router.get("/me", response_model=schemas.VendorResponseModel)
+async def get_logged_vendor(
+    currentUser: BaseUser = Depends(get_logged_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+
+    me = await vendor_service.get_vendor_by_email(currentUser.email, session)
+
+    if not me:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Vendor Not Found"
+        )
+
+    return me

@@ -1,12 +1,11 @@
 import uuid
-from fastapi import APIRouter, Depends, HTTPException, status, Response
+from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 from .schemas import ReviewCreateModel, ReviewResponseModel, ReviewUpdateModel
 from src.db.main import get_async_session
 from .service import ReviewService
 from src.auth.Dependencies import review_dependency, get_logged_user
 from src.db.models import BaseUser
-from src.db.models import Reviews
 
 
 review_router = APIRouter()
@@ -89,7 +88,7 @@ async def delete_review(
     Allows a customer to delete their own review.
     """
 
-    review = await review_service.get_review_by_uid(review_uid, session)
+    review = await review_service.get_review_by_id(review_uid, session)
 
     if not review:
         raise HTTPException(

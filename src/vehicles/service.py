@@ -3,7 +3,7 @@ import uuid
 from sqlmodel import desc, select
 from . import schemas
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.db.models import Cars
+from src.db.models import BaseUser, Cars
 
 
 class CarService:
@@ -22,10 +22,15 @@ class CarService:
         return car
 
     async def create_car(
-        self, car_data: schemas.CarCreateModel, session: AsyncSession
+        self,
+        car_data: schemas.CarCreateModel,
+        currentUser: BaseUser,
+        session: AsyncSession,
     ) -> Optional[Cars]:
 
-        new_car = Cars(**car_data.model_dump())
+        car_data_dict = car_data.model_dump()
+        car_data_dict.update({"vendor_id": currentUser.uid})
+        new_car = Cars(**car_data_dict)
         session.add(new_car)
         await session.commit()
         await session.refresh(new_car)

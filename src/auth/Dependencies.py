@@ -7,7 +7,7 @@ from src.db.main import get_async_session
 from src.auth.oauth2 import AuthService
 from fastapi.security import OAuth2PasswordBearer
 
-oauth_scheme = OAuth2PasswordBearer(tokenUrl="token")
+oauth_scheme = OAuth2PasswordBearer(tokenUrl="/api/v1/vendors/login")
 auth_service = AuthService()
 credentials_exception = HTTPException(
     status_code=status.HTTP_401_UNAUTHORIZED,

@@ -7,6 +7,7 @@ from pydantic import BaseModel
 class CarCreateModel(BaseModel):
     car_name: str
     model_year: str
+    image_url: str
     brand: str
     car_category: str
     engine_size: str

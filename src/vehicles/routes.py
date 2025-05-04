@@ -3,8 +3,13 @@ import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
 
-from src.auth.Dependencies import customer_dependency, vendor_dependency
+from src.auth.Dependencies import (
+    customer_dependency,
+    get_logged_user,
+    vendor_dependency,
+)
 from src.db.main import get_async_session
+from src.db.models import BaseUser
 from src.vehicles.schemas import CarCreateModel, CarGetModel, CarUpdateModel
 from src.vehicles.service import CarService
 
@@ -14,9 +19,7 @@ vehicles_router = APIRouter()
 car_service = CarService()
 
 
-@vehicles_router.get(
-    "/cars", response_model=List[CarGetModel], dependencies=[customer_dependency]
-)
+@vehicles_router.get("/cars", response_model=List[CarGetModel])
 async def get_all_cars(
     db: AsyncSession = Depends(get_async_session),
 ):
@@ -48,9 +51,11 @@ async def get_car(
     dependencies=[vendor_dependency],
 )
 async def create_car(
-    car_data: CarCreateModel, db: AsyncSession = Depends(get_async_session)
+    car_data: CarCreateModel,
+    currentUser: BaseUser = Depends(get_logged_user),
+    db: AsyncSession = Depends(get_async_session),
 ):
-    car = await car_service.create_car(car_data, db)
+    car = await car_service.create_car(car_data, currentUser, db)
 
     if not car:
         raise HTTPException(

@@ -215,7 +215,7 @@ async def delete_customers(
     return {"message": "Account deleted successfully"}
 
 
-# ---------------------- VENDOR FUNTIONS ----------------------
+# ---------------------- VENDOR FUNCTIONS ----------------------
 @admin_router.get(
     "/vendors",
     response_model=List[VendorGetModel],

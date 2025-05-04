@@ -95,7 +95,7 @@ class ReviewService:
         Edit the current review of customer if he has any
         """
         # Check if review exists
-        review = await self.get_review_by_id(review_uid, current_user, session)
+        review = await self.get_review_by_id(review_uid, session)
 
         if not review:
             return
