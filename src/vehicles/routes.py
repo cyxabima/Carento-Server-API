@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 import uuid
 from fastapi import APIRouter, Depends, HTTPException, status
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -22,9 +22,19 @@ car_service = CarService()
 @vehicles_router.get("/cars", response_model=List[CarGetModel])
 async def get_all_cars(
     db: AsyncSession = Depends(get_async_session),
+    limit: int = 10,
+    offset: int = 0,
+    search: Optional[str] = None,
+    brand: Optional[str] = None,
+    price_gt: Optional[int] = None,
+    price_lt: Optional[int] = None,
+    transmission: Optional[str] = None,
+    fuel_type: Optional[str] = None,
 ):
     # print(logged_user.email)
-    cars = await car_service.get_all_cars(db)
+    cars = await car_service.get_all_cars(
+        db, limit, offset, search, brand, price_gt, price_lt, transmission, fuel_type
+    )
     return cars
 
 

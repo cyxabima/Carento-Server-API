@@ -4,11 +4,48 @@ from sqlmodel import desc, select
 from . import schemas
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.db.models import BaseUser, Cars
+from sqlalchemy import func
 
 
 class CarService:
-    async def get_all_cars(self, session: AsyncSession) -> Sequence[Cars]:
-        statement = select(Cars).order_by(desc(Cars.created_at))
+    async def get_all_cars(
+        self,
+        session: AsyncSession,
+        limit: int,
+        offset: int,
+        search: Optional[str],
+        brand: Optional[str],
+        price_gt: Optional[int],
+        price_lt: Optional[int],
+        transmission: Optional[str],
+        fuel_type: Optional[str],
+    ) -> Sequence[Cars]:
+
+        filters = []
+
+        if brand is not None:
+            filters.append(Cars.brand == brand)
+
+        if price_gt is not None:
+            filters.append(Cars.price_per_day >= price_gt)
+
+        if price_lt is not None:
+            filters.append(Cars.price_per_day >= price_lt)
+
+        if fuel_type is not None:
+            filters.append(Cars.fuel_type == fuel_type)
+
+        if search is not None:
+            filters.append(func.lower(Cars.car_name).contains(search.lower()))
+
+        statement = (
+            select(Cars)
+            .where(*filters)
+            .limit(limit)
+            .offset(offset)
+            .order_by(desc(Cars.created_at))
+        )
+
         result = await session.exec(statement)
         cars = result.all()
         return cars
