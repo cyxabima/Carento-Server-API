@@ -30,10 +30,13 @@ class CarService:
             filters.append(Cars.price_per_day >= price_gt)
 
         if price_lt is not None:
-            filters.append(Cars.price_per_day >= price_lt)
+            filters.append(Cars.price_per_day <= price_lt)
 
         if fuel_type is not None:
             filters.append(Cars.fuel_type == fuel_type)
+
+        if transmission is not None:
+            filters.append(Cars.transmission == transmission)
 
         if search is not None:
             filters.append(func.lower(Cars.car_name).contains(search.lower()))
