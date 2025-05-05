@@ -1,7 +1,9 @@
 from datetime import datetime
-from typing import Literal, Optional
+from typing import List, Literal, Optional
 import uuid
 from pydantic import BaseModel
+
+from src.db.models import Reviews
 
 
 class CarCreateModel(BaseModel):
@@ -20,6 +22,7 @@ class CarCreateModel(BaseModel):
 
 class CarGetModel(CarCreateModel):
     uid: uuid.UUID
+    reviews: List[Reviews]
     created_at: datetime
     updated_at: datetime
 
