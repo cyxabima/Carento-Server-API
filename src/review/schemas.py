@@ -1,8 +1,9 @@
 from pydantic import Field, BaseModel
 from typing import Optional
-from sqlmodel import SQLModel
 from datetime import datetime
 import uuid
+
+from src.db.models import Customers
 
 
 class ReviewCreateModel(BaseModel):
@@ -17,5 +18,6 @@ class ReviewUpdateModel(BaseModel):
 
 class ReviewResponseModel(ReviewCreateModel):
     uid: uuid.UUID
+    customer: Customers
     created_at: datetime
     updated_at: datetime
