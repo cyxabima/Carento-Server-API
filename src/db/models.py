@@ -121,3 +121,11 @@ class Company(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     name: str
     password: str
+
+    # ---------------------- WALLET TABLE ----------------------
+
+
+class Wallet(SQLModel, table=True):
+    uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
+    customer_id: uuid.UUID = Field(foreign_key="customers.uid")
+    credit: float

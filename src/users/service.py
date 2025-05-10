@@ -9,7 +9,7 @@ from src import utils
 from src.auth.oauth2 import AuthService
 from . import schemas
 
-from src.db.models import BaseUser, Customers, Vendors
+from src.db.models import BaseUser, Customers, Vendors, Wallet
 
 # Type[T] represent class type and T represent object type
 # Define a type variable for subclasses of BaseUser
@@ -87,6 +87,12 @@ class CustomerService(UserService[Customers]):
         session.add(new_customer)
         await session.commit()
         await session.refresh(new_customer)
+
+        # Create wallet with initial 10,000 credits
+        new_wallet = Wallet(customer_id=new_customer.uid, credit=10000.0)
+        session.add(new_wallet)
+        await session.commit()
+        await session.refresh(new_wallet)
         return new_customer
 
     # login for customer

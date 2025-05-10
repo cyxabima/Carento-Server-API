@@ -134,10 +134,7 @@ async def delete_review(
 
 
 # ---------------------- VEHICLE ROUTES ----------------------
-@admin_router.get(
-    "/cars",
-    response_model=List[AdminCarGetModel]
-)
+@admin_router.get("/cars", response_model=List[AdminCarGetModel])
 async def get_all_cars(
     db: AsyncSession = Depends(get_async_session),
 ):
@@ -190,7 +187,9 @@ async def get_all_customers(session: AsyncSession = Depends(get_async_session)):
     "/customer",
     response_model=CustomerGetModel,
 )
-async def get_customer_by_email(email: EmailStr, session: AsyncSession = Depends(get_async_session)):
+async def get_customer_by_email(
+    email: EmailStr, session: AsyncSession = Depends(get_async_session)
+):
 
     customer = await customer_service.get_customer_by_email(email, session)
     return customer
@@ -229,7 +228,9 @@ async def get_all_vendors(session: AsyncSession = Depends(get_async_session)):
     "/vendor",
     response_model=VendorGetModel,
 )
-async def get_vendor_by_email(email: EmailStr, session: AsyncSession = Depends(get_async_session)):
+async def get_vendor_by_email(
+    email: EmailStr, session: AsyncSession = Depends(get_async_session)
+):
 
     vendor = await vendor_service.get_vendor_by_email(email, session)
     return vendor

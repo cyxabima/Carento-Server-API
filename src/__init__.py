@@ -10,6 +10,7 @@ from contextlib import asynccontextmanager
 from src.booking_table.routes import booking_router
 from fastapi.middleware.cors import CORSMiddleware
 from src.admin_panel.routes import admin_router
+from src.wallet.routes import wallet_router
 
 # from src.admin_panel.routes import admin_router
 
@@ -64,3 +65,4 @@ app.include_router(vendor_router, prefix=f"/api/{VERSION}/vendors", tags=["Vendo
 app.include_router(review_router, prefix=f"/api/{VERSION}/reviews", tags=["Reviews"])
 app.include_router(booking_router, prefix=f"/api/{VERSION}/booking", tags=["Booking"])
 app.include_router(admin_router, prefix=f"/api/{VERSION}/admin", tags=["Admin"])
+app.include_router(wallet_router, prefix=f"/api/{VERSION}/admin", tags=["Wallet"])
