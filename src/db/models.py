@@ -129,3 +129,17 @@ class Wallet(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     customer_id: uuid.UUID = Field(foreign_key="customers.uid")
     credit: float
+
+    def __iadd__(self, amount: float):
+        if not isinstance(amount, (int, float)):
+            raise TypeError("Can only add a number to Wallet")
+        self.credit += amount
+        return self
+
+    def __isub__(self, amount: float):
+        if not isinstance(amount, (int, float)):
+            raise TypeError("Can only add a number to Wallet")
+        if amount > self.credits:
+            raise ValueError("insufficient storage")
+        self.credit -= amount
+        return self
