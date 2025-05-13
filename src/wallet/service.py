@@ -8,14 +8,25 @@ import uuid
 
 class WalletService:
 
-    async def add_in_wallet(
-        self, credit: float, customer_uid: uuid.UUID, session: AsyncSession
-    ) -> None:
+    async def get_my_wallet(
+        self, customer_uid: uuid.UUID, session: AsyncSession
+    ) -> Optional[WalletGetModel]:
         stmt = select(Wallet).where(
             Wallet.customer_id == customer_uid,
         )
         result = await session.exec(stmt)
         wallet = result.first()
+
+        if wallet is None:
+            return
+
+        return wallet
+
+    async def add_in_wallet(
+        self, credit: float, customer_uid: uuid.UUID, session: AsyncSession
+    ) -> None:
+
+        wallet = await self.get_my_wallet(customer_uid, session)
 
         if wallet is None:
             return
@@ -26,6 +37,3 @@ class WalletService:
         await session.commit()
 
         return {"message": f"{credit} dollars added to your account successfully"}
-
-    async def get_my_wallet(self) -> Optional[WalletGetModel]:
-        pass
