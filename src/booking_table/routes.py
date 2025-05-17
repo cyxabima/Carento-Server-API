@@ -84,7 +84,7 @@ async def delete_booking(
     status_code=status.HTTP_200_OK,
     dependencies=[vendor_dependency],
 )
-async def get_all_bookings(
+async def get_my_bookings(
     session: AsyncSession = Depends(get_async_session),
     current_user: BaseUser = Depends(
         get_logged_user
@@ -95,7 +95,7 @@ async def get_all_bookings(
     Vendors can view all bookings associated with their cars.
     """
 
-    bookings = await booking_service.get_all_bookings(session)
+    bookings = await booking_service.get_my_bookings(current_user.uid, session)
 
     if not bookings:
         raise HTTPException(

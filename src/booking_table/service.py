@@ -1,6 +1,7 @@
 from src.db.models import Cars, Booking
 from src.db.models import BaseUser
 from sqlmodel import select
+from sqlalchemy.orm import joinedload
 from src.booking_table.schemas import CreateBookingModel
 from src.vehicles.service import CarService
 from src.wallet.service import WalletService
@@ -107,8 +108,12 @@ class BookingService:
         return {"message": "Booking successfully deleted"}
 
     # Get all bookings
-    async def get_all_bookings(self, session: AsyncSession):
-        statement = select(Booking)
+    async def get_my_bookings(self, vendor_uid: uuid.UUID, session: AsyncSession):
+        statement = (
+        select(Booking)
+        .join(Cars, Booking.car_id == Cars.uid)
+        .where(Cars.vendor_id == vendor_uid)
+    )
         result = await session.exec(statement)
         bookings = result.all()
 
