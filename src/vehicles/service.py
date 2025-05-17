@@ -21,7 +21,7 @@ class CarService:
         fuel_type: Optional[str],
     ) -> Sequence[Cars]:
 
-        filters = []
+        filters = [Cars.is_booked==False]
 
         if brand is not None:
             filters.append(Cars.brand == brand)
