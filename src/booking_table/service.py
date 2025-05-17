@@ -1,19 +1,19 @@
-from src.db.models import Cars, Booking
+from typing import Optional
+from src.db.models import Cars, Booking, Wallet
 from src.db.models import BaseUser
 from sqlmodel import select
-from sqlalchemy.orm import joinedload
 from src.booking_table.schemas import CreateBookingModel
 from src.vehicles.service import CarService
 from src.wallet.service import WalletService
 import uuid
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.review.service import user_service
-
-car_service = CarService()
-wallet_service = WalletService()
 
 
 class BookingService:
+
+    def __init__(self) -> None:
+        self.car_service: CarService = CarService()
+        self.wallet_service: WalletService = WalletService()
 
     # Get booking by UID
     async def get_booking_by_uid(self, booking_uid: uuid.UUID, session: AsyncSession):
@@ -30,7 +30,7 @@ class BookingService:
     # Check if the car is available
     async def is_car_available(self, car_uid: uuid.UUID, session: AsyncSession):
         # Check if car exists
-        car = await car_service.get_car(car_uid, session)
+        car = await self.car_service.get_car(car_uid, session)
 
         if not car:
             print("Car not found")
@@ -58,14 +58,19 @@ class BookingService:
             print("Car is not available")
             return None
 
-        car = await car_service.get_car(car_uid, session)
+        car = await self.car_service.get_car(car_uid, session)
         if not car:
             return
         car.is_booked = True
         price = car.price_per_day
 
         # Fetch wallet
-        wallet = await wallet_service.get_my_wallet(current_user.uid, session)
+        wallet: Optional[Wallet] = await self.wallet_service.get_my_wallet(
+            current_user.uid, session
+        )
+
+        if wallet is None:
+            return
 
         # Deduct from wallet
         wallet -= price
@@ -110,10 +115,10 @@ class BookingService:
     # Get all bookings
     async def get_my_bookings(self, vendor_uid: uuid.UUID, session: AsyncSession):
         statement = (
-        select(Booking)
-        .join(Cars, Booking.car_id == Cars.uid)
-        .where(Cars.vendor_id == vendor_uid)
-    )
+            select(Booking)
+            .join(Cars, Booking.car_id == Cars.uid)
+            .where(Cars.vendor_id == vendor_uid)
+        )
         result = await session.exec(statement)
         bookings = result.all()
 

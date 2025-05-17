@@ -16,13 +16,17 @@ async def init_db():
         await conn.run_sync(SQLModel.metadata.create_all)
 
 
+# this was causing slow response therefore
+# You're re-creating the async_sessionmaker every time get_async_session() is called:
+AsyncSessionLocal = async_sessionmaker(
+    async_engine, class_=AsyncSession, expire_on_commit=False
+)
+
+
 async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
     """
     Dependency to get an async database session.
     """
-    AsyncSessionLocal = async_sessionmaker(
-        async_engine, class_=AsyncSession, expire_on_commit=False
-    )
 
     async with AsyncSessionLocal() as session:
         yield session
