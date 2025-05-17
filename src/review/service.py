@@ -8,11 +8,12 @@ import uuid
 from src.users.service import CustomerService
 from src.vehicles.service import CarService
 
-user_service = CustomerService()
-car_service = CarService()
-
 
 class ReviewService:
+
+    def __init__(self) -> None:
+        self.user_service: CustomerService = CustomerService()
+        self.car_service: CarService = CarService()
 
     async def get_review_by_id(
         self, review_uid: uuid.UUID, session: AsyncSession
@@ -56,12 +57,14 @@ class ReviewService:
         """
 
         # check if customer exists
-        customer = await user_service.get_customer_by_email(current_user.email, session)
+        customer = await self.user_service.get_customer_by_email(
+            current_user.email, session
+        )
         if not customer:
             return
 
         # check  if car exists
-        car = await car_service.get_car(car_uid, session)
+        car = await self.car_service.get_car(car_uid, session)
         if not car:
             return None
 
