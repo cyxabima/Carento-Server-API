@@ -13,8 +13,6 @@ import uuid
 class CreateBookingModel(BaseModel):
     start_date: datetime
     end_date: datetime
-    total_price: float
-    is_payment_confirmed: bool
 
     @validator("end_date")
     def validate_dates(cls, end_date, values):

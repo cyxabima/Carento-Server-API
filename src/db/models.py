@@ -101,7 +101,6 @@ class Booking(SQLModel, table=True):
     start_date: datetime
     end_date: datetime
     total_price: float
-    is_payment_confirmed: bool = Field(default=False)
 
 
 # ---------------------- CONTACT US TABLE ----------------------
@@ -139,7 +138,7 @@ class Wallet(SQLModel, table=True):
     def __isub__(self, amount: float):
         if not isinstance(amount, (int, float)):
             raise TypeError("Can only add a number to Wallet")
-        if amount > self.credits:
-            raise ValueError("insufficient storage")
+        if amount > self.credit:
+            raise ValueError("insufficient balance")
         self.credit -= amount
         return self

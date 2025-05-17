@@ -3,11 +3,13 @@ from src.db.models import BaseUser
 from sqlmodel import select
 from src.booking_table.schemas import CreateBookingModel
 from src.vehicles.service import CarService
+from src.wallet.service import WalletService
 import uuid
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.review.service import user_service
 
 car_service = CarService()
+wallet_service = WalletService()
 
 
 class BookingService:
@@ -48,18 +50,6 @@ class BookingService:
         current_user: BaseUser,
     ):
 
-        # Check if customer exists
-        customer = await user_service.get_customer_by_email(current_user.email, session)
-        if not customer:
-            print("Customer not found")
-            return None
-
-        # Check if car exists
-        car = await car_service.get_car(car_uid, session)
-        if not car:
-            print("Car not found")
-            return None
-
         # Check if car is available
         is_available = await self.is_car_available(car_uid, session)
 
@@ -67,18 +57,28 @@ class BookingService:
             print("Car is not available")
             return None
 
+        car = await car_service.get_car(car_uid, session)
+        if not car:
+            return
+        car.is_booked = True
+        price = car.price_per_day
+
+        # Fetch wallet
+        wallet = await wallet_service.get_my_wallet(current_user.uid, session)
+
+        # Deduct from wallet
+        wallet -= price
+        session.add(wallet)
+
         booking_data = booking.model_dump()
         booking_data["car_id"] = car_uid
         booking_data["customer_id"] = current_user.uid
+        booking_data["total_price"] = car.price_per_day
         new_booking = Booking(**booking_data)
         session.add(new_booking)
-
-        # result = await session.exec(select(Cars).where(Cars.uid == car_uid))
-        # car = result.first()
-        car.is_booked = booking.is_payment_confirmed  # Mark car as booked
-
         await session.commit()
         await session.refresh(new_booking)
+
         return new_booking
 
     # Delete a booking
