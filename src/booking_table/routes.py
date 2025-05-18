@@ -44,7 +44,7 @@ async def create_booking(
     if booking is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Car is already booked or You have less credit.",
+            detail="You have Already Booked a car or You have less credit.",
         )
 
     return booking

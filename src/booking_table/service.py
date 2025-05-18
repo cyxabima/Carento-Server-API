@@ -1,4 +1,7 @@
 from typing import Optional
+
+from fastapi import Depends
+from src.db.main import get_async_session
 from src.db.models import Cars, Booking, Wallet
 from src.db.models import BaseUser
 from sqlmodel import select
@@ -42,6 +45,23 @@ class BookingService:
 
         return True
 
+    # get previous if any
+
+    async def customer_active_booking(
+        self,
+        customer_uid: uuid.UUID,
+        session: AsyncSession = Depends(get_async_session),
+    ):
+        statement = (
+            select(Booking)
+            .where(Booking.customer_id == customer_uid)
+            .where(Booking.is_active == True)
+        )
+        result = await session.exec(statement)
+        booking = result.one()
+
+        return booking
+
     # Create a booking
     async def create_booking(
         self,
@@ -53,6 +73,12 @@ class BookingService:
 
         # Check if car is available
         is_available = await self.is_car_available(car_uid, session)
+        is_previous_booking_active = await self.customer_active_booking(
+            current_user.uid, session
+        )
+
+        if is_previous_booking_active:
+            return None
 
         if not is_available:
             print("Car is not available")
@@ -135,10 +161,7 @@ class BookingService:
     async def get_customer_booking(
         self, customer_uid: uuid.UUID, session: AsyncSession
     ):
-        statement = (
-            select(Booking)
-            .where(Booking.customer_id == customer_uid)
-        )
+        statement = select(Booking).where(Booking.customer_id == customer_uid)
         result = await session.exec(statement)
         booking = result.all()
 

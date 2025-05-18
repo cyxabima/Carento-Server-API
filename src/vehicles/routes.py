@@ -49,7 +49,7 @@ async def get_car(
     if not car:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": "car with this uid is not found"},
+            detail="car with this uid is not found",
         )
     return car
 
@@ -70,7 +70,7 @@ async def create_car(
     if not car:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail={"message": "error while creating car"},
+            detail="error while creating car",
         )
     return car
 
@@ -87,7 +87,7 @@ async def edit_car(
     if not car:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": "car with this uid is not found"},
+            detail="car with this uid is not found",
         )
     return car
 
@@ -103,7 +103,7 @@ async def delete_car(car_uid: uuid.UUID, db: AsyncSession = Depends(get_async_se
     if not car:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": "car with this uid is not found"},
+            detail="car with this uid is not found",
         )
 
     return

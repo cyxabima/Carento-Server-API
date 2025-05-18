@@ -26,7 +26,7 @@ async def add_in_wallet(
     if not my_wallet:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": "wallet not found"},
+            detail="wallet not found",
         )
     return my_wallet
 
@@ -44,7 +44,7 @@ async def get_my_wallet(
     if not my_wallet:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail={"message": "wallet not found"},
+            detail="wallet not found",
         )
     return {"current_balance": my_wallet.credit}
 
