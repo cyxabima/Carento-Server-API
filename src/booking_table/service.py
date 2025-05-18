@@ -62,7 +62,7 @@ class BookingService:
         if not car:
             return
         car.is_booked = True
-        price = car.price_per_day
+        price = car.price_per_day * booking.no_of_days
 
         # Fetch wallet
         wallet: Optional[Wallet] = await self.wallet_service.get_my_wallet(
@@ -73,13 +73,16 @@ class BookingService:
             return
 
         # Deduct from wallet
-        wallet -= price
-        session.add(wallet)
+        try:
+            wallet -= price
+            session.add(wallet)
+        except ValueError:
+            return None
 
         booking_data = booking.model_dump()
         booking_data["car_id"] = car_uid
         booking_data["customer_id"] = current_user.uid
-        booking_data["total_price"] = car.price_per_day
+        booking_data["total_price"] = price
         new_booking = Booking(**booking_data)
         session.add(new_booking)
         await session.commit()
@@ -107,17 +110,17 @@ class BookingService:
         # so it is better to define logic explicitly imo
 
         # Delete the booking
-        await session.delete(booking)
+        booking.is_active = False
         await session.commit()
         print("Booking successfully deleted")
         return {"message": "Booking successfully deleted"}
 
     # Get all bookings
-    async def get_my_bookings(self, vendor_uid: uuid.UUID, session: AsyncSession):
+    async def get_vendor_bookings(self, vendor_uid: uuid.UUID, session: AsyncSession):
         statement = (
             select(Booking)
-            .join(Cars, Booking.car_id == Cars.uid)
             .where(Cars.vendor_id == vendor_uid)
+            .join(Cars, Booking.car_id == Cars.uid)  # type: ignore
         )
         result = await session.exec(statement)
         bookings = result.all()
@@ -127,3 +130,20 @@ class BookingService:
             return None
 
         return bookings
+
+    # Get customer
+    async def get_customer_booking(
+        self, customer_uid: uuid.UUID, session: AsyncSession
+    ):
+        statement = (
+            select(Booking)
+            .where(Booking.customer_id == customer_uid)
+        )
+        result = await session.exec(statement)
+        booking = result.all()
+
+        if not booking:
+            print("No bookings found")
+            return None
+
+        return booking

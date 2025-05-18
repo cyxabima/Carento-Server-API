@@ -36,6 +36,9 @@ class Cars(SQLModel, table=True):
         back_populates="cars", sa_relationship_kwargs={"lazy": "selectin"}
     )
 
+    # Relationship with Booking
+    bookings: List["Booking"] = Relationship(back_populates="car")
+
 
 # ---------------------- BASE USER MODEL ----------------------
 class BaseUser(SQLModel):
@@ -101,6 +104,9 @@ class Booking(SQLModel, table=True):
     start_date: datetime
     end_date: datetime
     total_price: float
+    is_active: bool = Field(default=True)
+
+    car: Optional["Cars"] = Relationship(back_populates="bookings")
 
 
 # ---------------------- CONTACT US TABLE ----------------------

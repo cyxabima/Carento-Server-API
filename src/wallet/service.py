@@ -35,4 +35,4 @@ class WalletService:
         session.add(wallet)
         await session.commit()
 
-        return {"message": f"{credit} dollars added to your account successfully"}
+        return {"message": f"{credit} credits added to your account successfully"}

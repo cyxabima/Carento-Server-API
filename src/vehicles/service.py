@@ -21,7 +21,7 @@ class CarService:
         fuel_type: Optional[str],
     ) -> Sequence[Cars]:
 
-        filters = [Cars.is_booked==False]
+        filters = []
 
         if brand is not None:
             filters.append(Cars.brand == brand)
@@ -44,6 +44,7 @@ class CarService:
         statement = (
             select(Cars)
             .where(*filters)
+            .where(Cars.is_booked == False)
             .limit(limit)
             .offset(offset)
             .order_by(desc(Cars.created_at))

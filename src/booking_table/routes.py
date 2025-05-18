@@ -44,7 +44,7 @@ async def create_booking(
     if booking is None:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Car is already booked or invalid request.",
+            detail="Car is already booked or You have less credit.",
         )
 
     return booking
@@ -84,7 +84,7 @@ async def delete_booking(
     status_code=status.HTTP_200_OK,
     dependencies=[vendor_dependency],
 )
-async def get_my_bookings(
+async def get_vendor_bookings(
     session: AsyncSession = Depends(get_async_session),
     current_user: BaseUser = Depends(
         get_logged_user
@@ -95,7 +95,7 @@ async def get_my_bookings(
     Vendors can view all bookings associated with their cars.
     """
 
-    bookings = await booking_service.get_my_bookings(current_user.uid, session)
+    bookings = await booking_service.get_vendor_bookings(current_user.uid, session)
 
     if not bookings:
         raise HTTPException(
@@ -104,3 +104,30 @@ async def get_my_bookings(
         )
 
     return bookings
+
+
+@booking_router.get(
+    "/get_customer_bookings",
+    response_model=list[BookingResponseModel],  # List of bookings as response model
+    status_code=status.HTTP_200_OK,
+)
+async def get_customer_booking(
+    session: AsyncSession = Depends(get_async_session),
+    current_user: BaseUser = Depends(
+        get_logged_user
+    ),  # Automatically get logged-in user
+):
+    """
+    API Endpoint to get all bookings for a Customers.
+    Customer can view which car is now at booking for himself.
+    """
+
+    booking = await booking_service.get_customer_booking(current_user.uid, session)
+
+    if not booking:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="No bookings found.",
+        )
+
+    return booking

@@ -78,6 +78,25 @@ async def customer_delete_account(
     return {"message": "Account deleted successfully"}
 
 
+@customer_router.get("/me")
+async def get_logged_customer(
+    currentUser: BaseUser = Depends(get_logged_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+
+    me = await customer_service.get_customer_by_email(currentUser.email, session)
+
+    if not me:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Customer Not Found"
+        )
+
+    return me
+
+
+# vendor Routes
+
+
 @vendor_router.post(
     "/signup",
     response_model=schemas.VendorResponseModel,

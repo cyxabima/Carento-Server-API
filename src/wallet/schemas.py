@@ -1,6 +1,5 @@
 import uuid
 from pydantic import BaseModel
-from sqlmodel import Field
 
 
 class WalletAddModel(BaseModel):

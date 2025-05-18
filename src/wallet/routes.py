@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from src.auth.Dependencies import customer_dependency, get_logged_user
 from src.db.main import get_async_session
 from src.db.models import BaseUser
-from src.wallet.schemas import WalletGetModel, WalletAddModel
+from src.wallet.schemas import WalletAddModel
 from src.wallet.service import WalletService
 from sqlmodel.ext.asyncio.session import AsyncSession
 

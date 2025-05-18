@@ -3,10 +3,13 @@ from datetime import datetime
 from pydantic import validator, BaseModel
 import uuid
 
+from src.db.models import Cars
+
 
 class CreateBookingModel(BaseModel):
     start_date: datetime
     end_date: datetime
+    no_of_days: int
 
     @validator("end_date")
     def validate_dates(cls, end_date, values):
@@ -20,7 +23,12 @@ class CreateBookingModel(BaseModel):
 # or this built-in method also can be used
 
 
-class BookingResponseModel(CreateBookingModel):
+class BookingResponseModel(BaseModel):
     uid: uuid.UUID
+    start_date: datetime
+    end_date: datetime
     customer_id: uuid.UUID
     car_id: uuid.UUID
+    is_active: bool
+    total_price: float
+    car: Cars
