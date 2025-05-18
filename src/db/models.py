@@ -100,13 +100,16 @@ class Reviews(SQLModel, table=True):
 class Booking(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
     customer_id: uuid.UUID = Field(foreign_key="customers.uid")
+    vendor_id: uuid.UUID = Field(foreign_key="vendors.uid")
     car_id: uuid.UUID = Field(foreign_key="cars.uid")
     start_date: datetime
     end_date: datetime
     total_price: float
     is_active: bool = Field(default=True)
 
-    car: Optional["Cars"] = Relationship(back_populates="bookings")
+    car: Optional["Cars"] = Relationship(
+        back_populates="bookings", sa_relationship_kwargs={"lazy": "selectin"}
+    )
 
 
 # ---------------------- CONTACT US TABLE ----------------------
@@ -132,7 +135,10 @@ class Company(SQLModel, table=True):
 
 class Wallet(SQLModel, table=True):
     uid: uuid.UUID = Field(default_factory=uuid.uuid4, primary_key=True)
-    customer_id: uuid.UUID = Field(foreign_key="customers.uid")
+
+    customer_id: Optional[uuid.UUID] = Field(default=None, foreign_key="customers.uid")
+    vendor_id: Optional[uuid.UUID] = Field(default=None, foreign_key="vendors.uid")
+
     credit: float
 
     def __iadd__(self, amount: float):

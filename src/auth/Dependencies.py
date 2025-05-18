@@ -78,4 +78,5 @@ def role_checker(allowed_role: List[str]):
 customer_dependency = Depends(role_checker(["Admin", "Customer"]))
 vendor_dependency = Depends(role_checker(["Admin", "Vendor"]))
 review_dependency = Depends(role_checker(["Customer"]))
+user_dependency = Depends(role_checker(["Customer", "Vendor"]))
 admin_dependency = Depends(role_checker(["Admin"]))

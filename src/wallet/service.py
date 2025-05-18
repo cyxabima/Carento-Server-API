@@ -7,7 +7,7 @@ import uuid
 
 class WalletService:
 
-    async def get_my_wallet(
+    async def get_customer_wallet(
         self, customer_uid: uuid.UUID, session: AsyncSession
     ) -> Optional[Wallet]:
         stmt = select(Wallet).where(
@@ -25,7 +25,7 @@ class WalletService:
         self, credit: float, customer_uid: uuid.UUID, session: AsyncSession
     ) -> Optional[Dict[str, str]]:
 
-        wallet = await self.get_my_wallet(customer_uid, session)
+        wallet = await self.get_customer_wallet(customer_uid, session)
 
         if wallet is None:
             return
@@ -36,3 +36,18 @@ class WalletService:
         await session.commit()
 
         return {"message": f"{credit} credits added to your account successfully"}
+
+    async def get_vendor_wallet(
+        self, vendor_uid: uuid.UUID, session: AsyncSession
+    ) -> Optional[Wallet]:
+
+        statement = select(Wallet).where(
+            Wallet.vendor_id == vendor_uid,
+        )
+        result = await session.exec(statement)
+        wallet = result.first()
+
+        if wallet is None:
+            return
+
+        return wallet

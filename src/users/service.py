@@ -163,6 +163,12 @@ class VendorService(UserService[Vendors]):
         session.add(new_vendor)
         await session.commit()
         await session.refresh(new_vendor)
+
+        # Create wallet with initial 0 credits for vendor
+        new_wallet = Wallet(vendor_id=new_vendor.uid, credit=0.0)
+        session.add(new_wallet)
+        await session.commit()
+        await session.refresh(new_wallet)
         return new_vendor
 
     # login for vendor

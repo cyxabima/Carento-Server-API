@@ -5,6 +5,7 @@ from src.db.main import get_async_session
 from src.db.models import Cars, Booking, Wallet
 from src.db.models import BaseUser
 from sqlmodel import select
+from sqlalchemy.orm import selectinload 
 from src.booking_table.schemas import CreateBookingModel
 from src.vehicles.service import CarService
 from src.wallet.service import WalletService
@@ -58,7 +59,7 @@ class BookingService:
             .where(Booking.is_active == True)
         )
         result = await session.exec(statement)
-        booking = result.one()
+        booking = result.first()
 
         return booking
 
@@ -87,27 +88,38 @@ class BookingService:
         car = await self.car_service.get_car(car_uid, session)
         if not car:
             return
+
         car.is_booked = True
         price = car.price_per_day * booking.no_of_days
 
         # Fetch wallet
-        wallet: Optional[Wallet] = await self.wallet_service.get_my_wallet(
+        customer_wallet: Optional[Wallet] = await self.wallet_service.get_customer_wallet(
             current_user.uid, session
         )
+        vendor_wallet: Optional[Wallet] = await self.wallet_service.get_vendor_wallet(
+            car.vendor_id, session
+        )
 
-        if wallet is None:
+        if customer_wallet is None:
+            return
+
+        if vendor_wallet is None:
             return
 
         # Deduct from wallet
         try:
-            wallet -= price
-            session.add(wallet)
+            customer_wallet -= price
+            session.add(customer_wallet)
         except ValueError:
             return None
+
+        vendor_wallet += price
+        session.add(vendor_wallet)
 
         booking_data = booking.model_dump()
         booking_data["car_id"] = car_uid
         booking_data["customer_id"] = current_user.uid
+        booking_data["vendor_id"] = car.vendor_id
         booking_data["total_price"] = price
         new_booking = Booking(**booking_data)
         session.add(new_booking)
@@ -143,11 +155,7 @@ class BookingService:
 
     # Get all bookings
     async def get_vendor_bookings(self, vendor_uid: uuid.UUID, session: AsyncSession):
-        statement = (
-            select(Booking)
-            .where(Cars.vendor_id == vendor_uid)
-            .join(Cars, Booking.car_id == Cars.uid)  # type: ignore
-        )
+        statement = select(Booking).where(Booking.vendor_id == vendor_uid)
         result = await session.exec(statement)
         bookings = result.all()
 

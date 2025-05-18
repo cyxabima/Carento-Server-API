@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from src.auth.Dependencies import customer_dependency, get_logged_user
+from src.auth.Dependencies import customer_dependency, get_logged_user, user_dependency
 from src.db.main import get_async_session
 from src.db.models import BaseUser
 from src.wallet.schemas import WalletAddModel
@@ -34,19 +34,37 @@ async def add_in_wallet(
 @wallet_router.get(
     "/my-wallet",
     # response_model=WalletGetModel,
-    dependencies=[customer_dependency],
+    dependencies=[user_dependency],
 )
 async def get_my_wallet(
     current_user: BaseUser = Depends(get_logged_user),
     session: AsyncSession = Depends(get_async_session),
 ):
-    my_wallet = await wallet_service.get_my_wallet(current_user.uid, session)
+    my_wallet = await wallet_service.get_customer_wallet(current_user.uid, session)
     if not my_wallet:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="wallet not found",
         )
     return {"current_balance": my_wallet.credit}
+
+
+@wallet_router.get(
+    "/vendor_wallet",
+    # response_model=WalletGetModel,
+    dependencies=[user_dependency],
+)
+async def get_vendor_wallet(
+    current_user: BaseUser = Depends(get_logged_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+    vendor_wallet = await wallet_service.get_vendor_wallet(current_user.uid, session)
+    if not vendor_wallet:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="wallet not found",
+        )
+    return {"current_balance": vendor_wallet.credit}
 
 
 # we have an option to return on the response model of wallet but it
