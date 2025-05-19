@@ -214,10 +214,16 @@ classDiagram
         +edit_review()
         +delte_review()
     }
-
-    %% Inheritance
+ %% Inheritance
     Customer --|> BaseUser
     Vendor --|> BaseUser
+
+    %% Composition (strong lifecycle dependency)
+    Booking *-- Car : for >
+    Booking *-- Wallet : pays with >
+
+    Review *-- Car : about >
+    Review *-- Customer : written by >
 
     %% Aggregation / Composition
     Customer *-- Wallet : owns >
@@ -225,8 +231,7 @@ classDiagram
 
     %% Associations
     Vendor "1" --> "many" Car : owns >
-    Customer "1" --> "one" Booking : books >
-    Customer "1" --> "many" Review : writes >
-    Car "1" --> "many" Booking : is booked in >
-    Car "1" --> "many" Review : is reviewed in >
+    Customer "1" -- "!" Booking : books >
+    
+    Car "1" -- "many" Review : is reviewed in >
 ```
