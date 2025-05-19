@@ -55,6 +55,7 @@ development and cloud deployment.
 ├── .env
 ├── Procfile
 └── requirements.txt
+└── README.md
 
 
 
@@ -65,7 +66,7 @@ development and cloud deployment.
 
 ## 🛠️ Tech Stack
 
-- FASTAPII 🟢
+- FASTAPI 🟢
 - PostgreSQL
 - JWT for authentication 🔑
 
@@ -80,8 +81,8 @@ development and cloud deployment.
 1. **Clone the repository:**
 
 ```bash
-git clone https://github.com/cyxabima/WheelXchange.git
-cd WheelXchange
+git clone https://github.com/cyxabima/Carento-Server-API.git
+cd Carento-Server-API
 ```
 
 2. **Create a virtual environment:**
@@ -100,5 +101,8 @@ venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
-
+5. Run the Server:
+``` bash 
+    fast-api dev src
+```
 ---
