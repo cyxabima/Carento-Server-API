@@ -101,8 +101,131 @@ venv\Scripts\activate
 ```bash
 pip install -r requirements.txt
 ```
-5. Run the Server:
+5. **Run the Server:**
 ``` bash 
     fast-api dev src
 ```
 ---
+```mermaid
+classDiagram
+    class BaseUser {
+        <<abstract>>
+        +string uid
+        +string email
+        +string phone_no
+        +string password
+        +get_all_user()
+        +get_user_by_email()
+        +*sign_up()*
+        +*login()*
+        +*delet_account()*
+    }
+
+    class Vendor {
+        +string first_name
+        +string last_name
+        +string business_name 
+        +boolean is_business
+        +datetime created_at
+        +datetime updated_at
+        +get_all_vendors()
+        +get_vendors_by_email()
+        +signup()
+        +login()
+        +delete_account()  
+            
+    }
+
+    class Customer {
+        +string first_name
+        +string last_name
+        +datetime created_at
+        +datetime updated_at
+        +get_all_customers()
+        +get_customers_by_email()
+        +signup()
+        +login()
+        +delete_account() 
+    }
+
+    class Car {
+        +string uid
+        +string car_name
+        +string image_url
+        +string model_year
+        +string brand
+        +string car_category
+        +string engine_size
+        +string fuel_type
+        +int siting_capacity
+        +float price_per_day
+        +string registration_no
+        +string transmission
+        +boolean is_booked
+        +datetime created_at
+        +datetime updated_at
+        +string vendor_id
+        +get_car()
+        +create_car()
+        +edit_car()
+        +delete_car()
+    }
+
+    class Wallet {
+        +string uid
+        +float credit
+        +customer_id
+        +vendor_id
+        +get_customer_wallet()
+        +add_in_wallet()
+        +get_vendor_wallet()
+    }
+
+    class Booking {
+        +string uid
+        +string customer_id
+        +string vendor_id
+        +string car_id
+        +datetime start_time
+        +datetime end_time
+        +float total_price
+        +bool is_active
+        +get_booking_by_uid()
+        +is_car_available()
+        +customer_active_booking()
+        +create_booking()
+        +delete_booking()
+        +get_vendor_booking()
+        +get_customer_booking()
+    }
+
+    class Review {
+        +string uid
+        +customer_id
+        +car_id
+        +int rating
+        +string review_text
+        +datetime created_at
+        +datetime updated_at
+        +get_review_by_id()
+        +has_reviewed()
+        +create_review()
+        +edit_review()
+        +delte_review()
+    }
+
+    %% Inheritance
+    Customer --|> BaseUser
+    Vendor --|> BaseUser
+
+    %% Aggregation / Composition
+    Customer *-- Wallet : owns >
+    Vendor *-- Wallet : owns >
+
+    %% Associations
+    Vendor "1" --> "many" Car : owns >
+    Customer "1" --> "one" Booking : books >
+    Customer "1" --> "many" Review : writes >
+    Car "1" --> "many" Booking : is booked in >
+    Car "1" --> "many" Review : is reviewed in >
+```
