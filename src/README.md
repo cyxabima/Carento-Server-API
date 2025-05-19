@@ -1,11 +1,20 @@
-# WheelXchange
+# Carento
 
-**WheelXchange** is an online platform designed to facilitate the exchange, purchase, 
-and sale of car wheels and related components. Built with scalability and user-friendliness 
-in mind, this application connects automotive enthusiasts and vendors in a streamlined marketplace.
+**Carento** is a Python-based project designed to facilitate ***car rental*** services.
+This repository reflects a modular and scalable architecture, prepared for local 
+development and cloud deployment.
 
 ---
+## Features
 
+- 🔐 User authentication and role separation (customer/vendor)
+- 🚗 Car management module for vendors
+- 📅 Booking management
+- 💼 Wallet for payments
+- ⭐ Review system for feedback
+- 🔧 Modular folder structure for easy scaling
+
+---
 ## 📁 Project Structure
 ```
 ├── src/
@@ -53,54 +62,43 @@ in mind, this application connects automotive enthusiasts and vendors in a strea
 
 ---
 
-## 🚀 Features
-
-- 🔐 **User Authentication** – Register/Login functionality with secure JWT
-- 📦 **Product Listings** – List wheels for sale or exchange with images and details
-- 🔍 **Search & Filters** – Advanced filtering by type, size, location, brand
-- 📱 **Responsive UI** – Seamlessly works on desktop and mobile devices
-- 🧾 **User Profiles** – Manage listings and messages from your dashboard
-
----
 
 ## 🛠️ Tech Stack
 
-### 🌐 Frontend
-- React.js ⚛️
-- HTML5 & CSS3 🎨
-- TailwindCSS
-
-### 🧪 Backend
 - FASTAPII 🟢
 - PostgreSQL
 - JWT for authentication 🔑
 
-### 📦 Others
-- Axios for API calls 🔄
-- Cloudinary for image uploads ☁️
-- Dotenv for environment configs 🗝️
+---
+
+
 
 ---
 
-## 🧪 Getting Started
+## Installation
 
-### ✅ Prerequisites
-
-- Node.js (v16+) 🟢
-- npm or yarn 📦
-- MongoDB (local or Atlas) 🍃
-
-### ⚙️ Installation
+1. **Clone the repository:**
 
 ```bash
-# Clone the repo
 git clone https://github.com/cyxabima/WheelXchange.git
-
-# Navigate to the project directory
 cd WheelXchange
+```
 
-# Install dependencies
-npm install
+2. **Create a virtual environment:**
+```bash
+python -m venv venv
+```
+3. **Activate virtual environment:**
+```bash
+### On macOS/Linux:
+source venv/bin/activate
+### On Windows:
+venv\Scripts\activate
+```
 
-# Run the app
-npm start
+4. **Install dependencies:**
+```bash
+pip install -r requirements.txt
+```
+
+---
