@@ -106,6 +106,7 @@ pip install -r requirements.txt
     fast-api dev src
 ```
 ---
+## Class Diagrams
 ```mermaid
 classDiagram
     class BaseUser {
