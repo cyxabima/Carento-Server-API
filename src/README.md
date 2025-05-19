@@ -7,17 +7,49 @@ in mind, this application connects automotive enthusiasts and vendors in a strea
 ---
 
 ## 📁 Project Structure
-src/
+```
+├── src/
+│   ├── auth/
+│   │   ├── __init__.py
+|   |   ├── Dependencies.py
+|   |   ├── oauth2.py
+│   │   └── schemas.py
+│   ├── booking_table/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+|   |   ├── schemas.py
+│   │   └── service.py
+│   ├── review/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+|   |   ├── schemas.py
+│   │   └── service.py
+│   ├── users/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+|   |   ├── schemas.py
+│   │   └── service.py
+│   ├── vehicles/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+|   |   ├── schemas.py
+│   │   └── service.py
+│   └── wallet/
+│   │   ├── __init__.py
+│   │   ├── routes.py
+|   |   ├── schemas.py
+│   │   └── service.py
+│   ├── __init__.py
+│   ├── config.py
+|   ├── README.md
+│   └── utils.py
+├── .env
+├── Procfile
+└── requirements.txt
 
-├── components/ ⚙️ Reusable React component
 
-├── pages/ 📄 Application pages (e.g., Home, Listings)
 
-├── services/ 🌐 API integration and backend communication
-
-├── utils/ 🧠 Utility functions and helpers
-
-└──  assets/ 🖼️ Static files like images and icons
+```
 
 ---
 
