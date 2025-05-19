@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Generic, Optional, Sequence, Type, TypeVar
+import uuid
 
 # import uuid
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -7,9 +8,10 @@ from sqlmodel import select
 
 from src import utils
 from src.auth.oauth2 import AuthService
+from src.booking_table.schemas import CreateBookingModel
 from . import schemas
 
-from src.db.models import BaseUser, Customers, Vendors, Wallet
+from src.db.models import BaseUser, Booking, Customers, Vendors, Wallet
 
 # Type[T] represent class type and T represent object type
 # Define a type variable for subclasses of BaseUser
@@ -201,3 +203,28 @@ class VendorService(UserService[Vendors]):
         await session.delete(vendor)
         await session.commit()
         return 200
+
+    async def get_my_customers(self, vendor_uid: uuid.UUID, session: AsyncSession):
+        statement = (
+            select(Booking, Customers)
+            .where(Booking.vendor_id == vendor_uid)
+            .where(Booking.is_active == True)
+            .join(Customers, Booking.customer_id == Customers.uid)  # type:ignore
+        )
+        result = await session.exec(statement)
+
+        data = result.all()
+        response_data = []
+
+        for booking, customer in data:
+            booking_response = Booking.model_validate(booking)
+            customer_response = Customers.model_validate(customer)
+            response_data.append(
+                [
+                    schemas.GetMyCustomerResponse(
+                        booking=booking_response, customer=customer_response
+                    )
+                ]
+            )
+
+        return response_data

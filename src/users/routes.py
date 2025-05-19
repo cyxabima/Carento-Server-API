@@ -1,3 +1,4 @@
+from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security.oauth2 import OAuth2PasswordRequestForm
 from sqlmodel.ext.asyncio.session import AsyncSession
@@ -167,3 +168,14 @@ async def get_logged_vendor(
         )
 
     return me
+
+
+@vendor_router.get(
+    "/get-my-customers", response_model=List[List[schemas.GetMyCustomerResponse]]
+)
+async def get_my_customers(
+    currentUser: BaseUser = Depends(get_logged_user),
+    session: AsyncSession = Depends(get_async_session),
+):
+    data = await vendor_service.get_my_customers(currentUser.uid, session)
+    return data

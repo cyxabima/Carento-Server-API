@@ -1,5 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from src.auth.Dependencies import customer_dependency, get_logged_user, user_dependency
+from src.auth.Dependencies import (
+    customer_dependency,
+    get_logged_user,
+    user_dependency,
+    vendor_dependency,
+)
 from src.db.main import get_async_session
 from src.db.models import BaseUser
 from src.wallet.schemas import WalletAddModel
@@ -52,7 +57,7 @@ async def get_my_wallet(
 @wallet_router.get(
     "/vendor_wallet",
     # response_model=WalletGetModel,
-    dependencies=[user_dependency],
+    dependencies=[vendor_dependency],
 )
 async def get_vendor_wallet(
     current_user: BaseUser = Depends(get_logged_user),

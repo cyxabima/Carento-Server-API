@@ -3,7 +3,7 @@ from datetime import datetime
 import uuid
 from typing import List, Literal, Optional
 
-from src.db.models import Cars
+from src.db.models import Booking, Cars, Customers
 
 
 class UserCreateModel(BaseModel):
@@ -57,3 +57,9 @@ class TokenDataModel(BaseModel):
     # uid: uuid.UUID
     email: EmailStr
     role: Literal["Customer", "Vendor", "Admin"]
+
+
+class GetMyCustomerResponse(BaseModel):
+    customer: Customers
+    booking: Booking
+    pass

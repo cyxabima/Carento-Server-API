@@ -1,11 +1,11 @@
 from typing import Optional
 
-from fastapi import Depends
+from fastapi import Depends, HTTPException
 from src.db.main import get_async_session
 from src.db.models import Cars, Booking, Wallet
 from src.db.models import BaseUser
 from sqlmodel import select
-from sqlalchemy.orm import selectinload 
+from sqlalchemy.orm import selectinload
 from src.booking_table.schemas import CreateBookingModel
 from src.vehicles.service import CarService
 from src.wallet.service import WalletService
@@ -93,8 +93,8 @@ class BookingService:
         price = car.price_per_day * booking.no_of_days
 
         # Fetch wallet
-        customer_wallet: Optional[Wallet] = await self.wallet_service.get_customer_wallet(
-            current_user.uid, session
+        customer_wallet: Optional[Wallet] = (
+            await self.wallet_service.get_customer_wallet(current_user.uid, session)
         )
         vendor_wallet: Optional[Wallet] = await self.wallet_service.get_vendor_wallet(
             car.vendor_id, session
