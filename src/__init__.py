@@ -25,7 +25,7 @@ async def life_span(app: FastAPI):
 
 VERSION = "v1"
 app = FastAPI(
-    title="WheelXchange",
+    title="Carento",
     version=VERSION,
     description="A Rest API for Vehicle Rental system or Market Place",
     lifespan=life_span,
