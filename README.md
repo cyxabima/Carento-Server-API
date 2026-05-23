@@ -7,15 +7,15 @@ development and cloud deployment.
 ---
 ## Features
 
-- 🔐 User authentication and role separation (customer/vendor)
-- 🚗 Car management module for vendors
-- 📅 Booking management
-- 💼 Wallet for payments
-- ⭐ Review system for feedback
-- 🔧 Modular folder structure for easy scaling
+-  User authentication and role separation (customer/vendor)
+-  Car management module for vendors
+-  Booking management
+-  Wallet for payments
+-  Review system for feedback
+-  Modular folder structure for easy scaling
 
 ---
-## 📁 Project Structure
+##  Project Structure
 ```
 ├── src/
 │   ├── auth/
@@ -64,11 +64,11 @@ development and cloud deployment.
 ---
 
 
-## 🛠️ Tech Stack
+## Tech Stack
 
-- FASTAPI 🟢
+- FASTAPI 
 - PostgreSQL
-- JWT for authentication 🔑
+- JWT for authentication 
 
 ---
 
